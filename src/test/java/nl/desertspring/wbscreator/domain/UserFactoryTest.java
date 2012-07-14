@@ -26,4 +26,6 @@ public class UserFactoryTest {
         assertEquals(password, user.getPassword());
         assertEquals(email, user.getEmail());
     }
+    
+    
 }

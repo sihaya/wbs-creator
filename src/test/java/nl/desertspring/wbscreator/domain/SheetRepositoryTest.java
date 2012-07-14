@@ -18,16 +18,16 @@ import static org.junit.Assert.*;
  * @author sihaya
  */
 public class SheetRepositoryTest {
-    private UserFactory userFactory;
-    private UserRepository userRepository;
-    private ProjectRepository projectRepository;
-    private SheetRepository sheetRepository;
+    private UserFactory userFactory = new UserFactory();
+    private UserRepository userRepository = new UserRepository();
+    private ProjectRepository projectRepository = new ProjectRepository();
+    private SheetRepository sheetRepository = new SheetRepository();
     
     private User user;
-    private Project project;
+    private Project project;    
     
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {                
         user = userFactory.createUser("username", "password", "email");
         userRepository.save(user);
         
