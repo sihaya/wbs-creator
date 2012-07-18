@@ -21,7 +21,7 @@ public class SheetService {
         this.sheetRepository = sheetRepository;
     }
 
-    void updateTasks(Integer id, Task unsavedRootTask) {
+    void updateTasks(String id, Task unsavedRootTask) {
         Sheet sheet = sheetRepository.findById(id);
         
         sheet.replace(unsavedRootTask);

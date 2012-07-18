@@ -9,12 +9,27 @@ package nl.desertspring.wbscreator.domain;
  *
  * @author sihaya
  */
-public class Sheet {    
-    private Integer sheetId;
-    private String name;
+public class Sheet {
 
-    public Integer getId() {
+    private String sheetId;
+    private String name;
+    private Project project;
+    private Task root;
+
+    public void setSheetId(String sheetId) {
+        this.sheetId = sheetId;
+    }
+
+    public String getSheetId() {
         return sheetId;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 
     public String getName() {
@@ -24,12 +39,16 @@ public class Sheet {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public Task getRoot() {
-        return null;
+        return root;
     }
 
     public void replace(Task unsavedRootTask) {
         throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    void setRoot(Task root) {
+        this.root = root;
     }
 }

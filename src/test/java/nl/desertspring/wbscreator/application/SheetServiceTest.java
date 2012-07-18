@@ -25,9 +25,9 @@ public class SheetServiceTest {
         SheetRepository sheetRepository = mock(SheetRepository.class);
         sheetService.setSheetRepository(sheetRepository);
 
-        when(sheetRepository.findById(sheet.getId())).thenReturn(sheet);
+        when(sheetRepository.findById(sheet.getSheetId())).thenReturn(sheet);
         
-        sheetService.updateTasks(sheet.getId(), unsavedRootTask);
+        sheetService.updateTasks(sheet.getSheetId(), unsavedRootTask);
         
         verify(sheet).replace(unsavedRootTask);        
         verify(sheetRepository).save(sheet);

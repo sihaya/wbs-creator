@@ -4,6 +4,7 @@
  */
 package nl.desertspring.wbscreator.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,12 +13,36 @@ import java.util.List;
  */
 public class Project {
 
-    Sheet createSheet(String mysheet) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    private List<Sheet> sheets = new ArrayList<Sheet>();
+    private User user;
+    private String name;
+
+    public Sheet createSheet(String sheetName) {
+        Sheet sheet = new Sheet();
+        sheet.setName(sheetName);
+
+        sheets.add(sheet);
+
+        return sheet;
     }
 
-    List<Sheet> getSheets() {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public List<Sheet> getSheets() {
+        return sheets;
     }
-    
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
  *
  * @author sihaya
  */
-public class SheetRepositoryTest {
+public class SheetRepositoryTest extends WbsIntegrationTest {
     private UserFactory userFactory = new UserFactory();
     private UserRepository userRepository = new UserRepository();
     private ProjectRepository projectRepository = new ProjectRepository();
@@ -25,10 +25,13 @@ public class SheetRepositoryTest {
     
     private User user;
     private Project project;    
+    private static int number = 0;
     
     @Before
     public void setUp() throws Exception {                
-        user = userFactory.createUser("username", "password", "email");
+        userRepository.setSession(session);
+        
+        user = userFactory.createUser("username" + number++, "password", "email");
         userRepository.save(user);
         
         project = user.createProject("myproject");
@@ -39,7 +42,7 @@ public class SheetRepositoryTest {
         Sheet sheet = project.createSheet("mysheet");
         sheetRepository.save(sheet);
         
-        assertNotNull(sheet.getId());
+        assertNotNull(sheet.getSheetId());
     }
     
     @Test
@@ -47,7 +50,7 @@ public class SheetRepositoryTest {
        Sheet sheet = project.createSheet("anothersheet");
        sheetRepository.save(sheet);
        
-       Sheet sheetActual = sheetRepository.findById(sheet.getId());
+       Sheet sheetActual = sheetRepository.findById(sheet.getSheetId());
        
        assertEquals("anothersheet", sheetActual.getName());
     }

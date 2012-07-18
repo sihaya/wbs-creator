@@ -59,4 +59,10 @@ public class Task implements Serializable {
     public List<Task> getSubTasks() {
         return Collections.unmodifiableList(subTasks);
     }
+
+    void setSubTasks(List<Task> subTasks) {
+        this.subTasks = subTasks;
+    }
+    
+    
 }

@@ -56,8 +56,13 @@ public class User {
         this.email = email;
     }
 
-    Project createProject(String anew) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    Project createProject(String name) {
+        Project project = new Project();
+        
+        project.setUser(this);
+        project.setName(name);
+        
+        return project;
     }
     
     
