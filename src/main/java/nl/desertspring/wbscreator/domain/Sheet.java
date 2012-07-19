@@ -43,12 +43,8 @@ public class Sheet {
     public Task getRoot() {
         return root;
     }
-
-    public void replace(Task unsavedRootTask) {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    void setRoot(Task root) {
+    
+    public void setRoot(Task root) {
         this.root = root;
     }
 }

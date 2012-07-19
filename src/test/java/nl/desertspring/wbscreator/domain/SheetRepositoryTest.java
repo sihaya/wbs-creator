@@ -18,7 +18,6 @@ import static org.junit.Assert.*;
  * @author sihaya
  */
 public class SheetRepositoryTest extends WbsIntegrationTest {
-    private UserFactory userFactory = new UserFactory();
     private UserRepository userRepository = new UserRepository();
     private ProjectRepository projectRepository = new ProjectRepository();
     private SheetRepository sheetRepository = new SheetRepository();
@@ -31,7 +30,10 @@ public class SheetRepositoryTest extends WbsIntegrationTest {
     public void setUp() throws Exception {                
         userRepository.setSession(session);
         
-        user = userFactory.createUser("username" + number++, "password", "email");
+        user = new User();
+        user.setUsername("username" + number++);
+        user.setPassword("222");
+        user.setEmail("user@email.com");
         userRepository.save(user);
         
         project = user.createProject("myproject");
