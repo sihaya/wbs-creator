@@ -13,22 +13,8 @@ import java.util.List;
  */
 public class Project {
 
-    private List<Sheet> sheets = new ArrayList<Sheet>();
-    private User user;
     private String name;
-
-    public Sheet createSheet(String sheetName) {
-        Sheet sheet = new Sheet();
-        sheet.setName(sheetName);
-
-        sheets.add(sheet);
-
-        return sheet;
-    }
-
-    public List<Sheet> getSheets() {
-        return sheets;
-    }
+    private String projectId;
 
     public String getName() {
         return name;
@@ -38,11 +24,11 @@ public class Project {
         this.name = name;
     }
 
-    public User getUser() {
-        return user;
+    public String getProjectId() {
+        return projectId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 }

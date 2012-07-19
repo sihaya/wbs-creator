@@ -12,8 +12,7 @@ package nl.desertspring.wbscreator.domain;
 public class Sheet {
 
     private String sheetId;
-    private String name;
-    private Project project;
+    private String name;    
     private Task root;
 
     public void setSheetId(String sheetId) {
@@ -22,14 +21,6 @@ public class Sheet {
 
     public String getSheetId() {
         return sheetId;
-    }
-
-    public Project getProject() {
-        return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
     }
 
     public String getName() {

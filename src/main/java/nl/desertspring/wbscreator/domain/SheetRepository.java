@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 /**
@@ -19,54 +20,50 @@ import javax.jcr.Session;
  */
 public class SheetRepository {
 
-    private NodeUtil nodeUtil;
     private Session session;
-    
-    public List<Sheet> findByProjectId(String projectId) {
-        return null;
-    }
 
-    public void save(Sheet sheet) {
+    public List<Sheet> findByProjectId(String projectId) {
         try {
-            handleSave(sheet);
+            return handleFindByProjectId(projectId);
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }
     }
 
-    private void handleSave(Sheet sheet) throws Exception {
-        Node projectNode = nodeUtil.getProjectNode(sheet.getProject());
+    private Sheet constructSheet(Node node) throws RepositoryException {
+        Sheet sheet = new Sheet();
+        sheet.setName(node.getName());
+        return sheet;
+    }
 
-        Node sheetNode;
-        if (!projectNode.hasNode(sheet.getName())) {
-            sheetNode = projectNode.addNode(sheet.getName());
-            sheet.setSheetId(sheetNode.getIdentifier());
-        } else {
-            sheetNode = projectNode.getNode(sheet.getName());
+    private List<Sheet> handleFindByProjectId(String projectId) throws RepositoryException {
+        Node node = session.getNodeByIdentifier(projectId);
 
-            if (sheetNode.hasNodes()) {
-                NodeIterator iter = sheetNode.getNodes();
-                while (iter.hasNext()) {
-                    iter.next();
-                    iter.remove();
-                }
-            }
+        List<Sheet> result = new ArrayList<Sheet>();
+        NodeIterator iter = node.getNodes();
+
+        while (iter.hasNext()) {
+            result.add(constructSheet(iter.nextNode()));
         }
         
-        createTaskNode(sheetNode, sheet.getRoot());
+        return result;
     }
-    
-    private void createTaskNode(Node parent, Task task) throws Exception {
-        Node taskNode = parent.addNode("task");
-        taskNode.setProperty("name", task.getName());
-        
-        if (task.getSubTasks().isEmpty()) {
-            taskNode.setProperty("effort", task.getEffort());            
-        } else {
-            for(Task subTask : task.getSubTasks()) {
-                createTaskNode(taskNode, subTask);
-            }
-        }        
+
+    public void save(String projectId, Sheet sheet) {
+        try {
+            handleSave(projectId, sheet);
+        } catch (Exception ex) {
+            throw new IllegalStateException(ex);
+        }
+    }
+
+    private void handleSave(String projectId, Sheet sheet) throws Exception {
+        Node projectNode = session.getNodeByIdentifier(projectId);
+
+        Node sheetNode = projectNode.addNode(sheet.getName());
+        sheet.setSheetId(sheetNode.getIdentifier());
+
+        session.save();
     }
 
     public Sheet findById(String id) {
@@ -78,39 +75,13 @@ public class SheetRepository {
     }
 
     private Sheet handleFindById(String id) throws Exception {
-        Sheet sheet = new Sheet();
-
         Node node = session.getNodeByIdentifier(id);
+        Sheet sheet = constructSheet(node);
 
-        sheet.setName(node.getName());
-
-        if (node.hasNode("task")) {
-            Task root = createTaskFromNode(node.getNode("task"));
-            sheet.setRoot(root);
-        }
-        
         return sheet;
     }
 
-    private Task createTaskFromNode(Node node) throws Exception {
-        Task task = new Task();
-        task.setName(node.getProperty("name").getString());
-        
-        if (!node.hasNodes()) {
-            task.setEffort(((Long)node.getProperty("effort").getLong()).intValue());
-        } else {
-            NodeIterator iter = node.getNodes();
-            List<Task> subTasks = new ArrayList<Task>();
-            
-            while(iter.hasNext()) {
-                Node subTask = iter.nextNode();
-                
-                subTasks.add(createTaskFromNode(subTask));
-            }
-            
-            task.setSubTasks(subTasks);
-        }
-        
-        return task;
+    public void setSession(Session session) {
+        this.session = session;
     }
 }

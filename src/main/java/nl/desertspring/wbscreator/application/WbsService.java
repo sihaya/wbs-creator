@@ -78,7 +78,7 @@ public class WbsService {
 
         sheet.setName(sheetName);
 
-        sheetRepository.save(sheet);
+        sheetRepository.save(projectId, sheet);
         
         Task task = createTask(sheet.getSheetId());
         sheet.setRoot(task);

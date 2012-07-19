@@ -10,6 +10,7 @@ package nl.desertspring.wbscreator.domain;
  * @author sihaya
  */
 public class User {
+
     private String username;
     private String password;
     private String email;
@@ -55,15 +56,4 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    Project createProject(String name) {
-        Project project = new Project();
-        
-        project.setUser(this);
-        project.setName(name);
-        
-        return project;
-    }
-    
-    
 }

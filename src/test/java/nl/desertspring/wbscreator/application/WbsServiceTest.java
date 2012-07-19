@@ -123,7 +123,7 @@ public class WbsServiceTest {
         
         ArgumentCaptor<Sheet> sheetExpected = ArgumentCaptor.forClass(Sheet.class);
         
-        verify(sheetRepository).save(sheetExpected.capture());        
+        verify(sheetRepository).save(eq(projectId), sheetExpected.capture());        
         verify(taskRepository).save(anyString(), eq(sheetActual.getRoot()));
         
         assertEquals(sheetExpected.getValue(), sheetActual);
