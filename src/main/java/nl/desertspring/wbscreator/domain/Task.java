@@ -19,6 +19,7 @@ public class Task implements Serializable {
     private List<Task> subTasks = new ArrayList<Task>();
     private Integer effort;
     private String name;
+    private String taskId;
 
     public String getName() {
         return name;
@@ -33,13 +34,13 @@ public class Task implements Serializable {
             return effort;
         } else {
             int sum = 0;
-            
-            for(Task subTask : subTasks) {
+
+            for (Task subTask : subTasks) {
                 sum += subTask.getEffort();
             }
-            
+
             return sum;
-        }        
+        }
     }
 
     public void setEffort(Integer effort) {
@@ -48,11 +49,11 @@ public class Task implements Serializable {
 
     public Task createSubTask(String taskName) {
         Task task = new Task();
-        
+
         task.setName(taskName);
-        
+
         subTasks.add(task);
-        
+
         return task;
     }
 
@@ -64,5 +65,11 @@ public class Task implements Serializable {
         this.subTasks = subTasks;
     }
     
-    
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
 }

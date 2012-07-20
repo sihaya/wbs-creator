@@ -95,16 +95,24 @@ public class WbsServiceTest {
         WbsService wbsService = new WbsService();
         
         final String sheetId = "3423423423";
-        
+                
+        TaskRepository taskRepository = mock(TaskRepository.class);
         SheetRepository sheetRepository = mock(SheetRepository.class);
+        
         wbsService.setSheetRepository(sheetRepository);
+        wbsService.setTaskRepository(taskRepository);
         
         Sheet expected = mock(Sheet.class);
+        Task rootExpected = mock(Task.class);
+        
         when(sheetRepository.findById(sheetId)).thenReturn(expected);
+        when(taskRepository.findRootById(sheetId)).thenReturn(rootExpected);
         
         Sheet actual = wbsService.fetchSheetDetail(sheetId);
         
         assertEquals(expected, actual);
+        
+        verify(actual).setRoot(rootExpected);
     }
     
     @Test

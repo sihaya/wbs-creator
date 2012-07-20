@@ -33,6 +33,7 @@ public class SheetRepository {
     private Sheet constructSheet(Node node) throws RepositoryException {
         Sheet sheet = new Sheet();
         sheet.setName(node.getName());
+        sheet.setSheetId(node.getIdentifier());
         return sheet;
     }
 

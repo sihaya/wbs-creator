@@ -5,10 +5,9 @@
 package nl.desertspring.wbscreator.domain;
 
 import java.util.List;
-import javax.jcr.Node;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  * Specs for the SheetRepository.
@@ -61,7 +60,7 @@ public class SheetRepositoryTest extends WbsIntegrationTest {
     }
 
     @Test
-    public void given_a_new_sheet_root_is_not_empty() {
+    public void given_a_new_sheet_saving_adds_list_of_sheets() {
         final String name = "anothersheet";
 
         Sheet sheet = new Sheet();
@@ -72,5 +71,5 @@ public class SheetRepositoryTest extends WbsIntegrationTest {
         List<Sheet> sheets = sheetRepository.findByProjectId(projectId);
         
         assertEquals(1, sheets.size());
-    }
+    }   
 }

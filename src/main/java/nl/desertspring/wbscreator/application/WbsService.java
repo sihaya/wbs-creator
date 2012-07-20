@@ -49,7 +49,12 @@ public class WbsService {
     }
 
     Sheet fetchSheetDetail(String sheetId) {
-        return sheetRepository.findById(sheetId);
+        Sheet sheet = sheetRepository.findById(sheetId);
+        
+        Task root = taskRepository.findRootById(sheetId);
+        sheet.setRoot(root);
+        
+        return sheet;
     }
 
     Task createTask(String parentTaskId) {
