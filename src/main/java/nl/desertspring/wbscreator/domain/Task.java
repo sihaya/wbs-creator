@@ -8,12 +8,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Representation of a task, represents both leafs and composite tasks.
  *
  * @author sihaya
  */
+@XmlRootElement
 public class Task implements Serializable {
 
     private List<Task> subTasks = new ArrayList<Task>();

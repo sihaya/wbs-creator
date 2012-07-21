@@ -4,14 +4,17 @@
  */
 package nl.desertspring.wbscreator.domain;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author sihaya
  */
-public class Project {
+@XmlRootElement
+public class Project implements Serializable {
 
     private String name;
     private String projectId;

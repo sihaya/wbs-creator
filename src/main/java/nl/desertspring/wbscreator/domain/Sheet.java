@@ -4,11 +4,14 @@
  */
 package nl.desertspring.wbscreator.domain;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * A sheet containing a work breakdown structure with a single root.
  *
  * @author sihaya
  */
+@XmlRootElement
 public class Sheet {
 
     private String sheetId;

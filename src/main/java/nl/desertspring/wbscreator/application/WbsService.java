@@ -5,7 +5,9 @@
 package nl.desertspring.wbscreator.application;
 
 import java.util.List;
+import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import nl.desertspring.wbscreator.domain.*;
 
 /**
@@ -13,6 +15,7 @@ import nl.desertspring.wbscreator.domain.*;
  * @author sihaya
  */
 @Stateless
+@LocalBean
 public class WbsService {
 
     private UserRepository userRepository;
@@ -40,24 +43,24 @@ public class WbsService {
         return project;
     }
 
-    List<Project> findProjectsByUsername(String username) {
+    public List<Project> findProjectsByUsername(String username) {
         return projectRepository.findProjectByUsername(username);
     }
 
-    List<Sheet> findSheetsByProjectId(String projectId) {
+    public List<Sheet> findSheetsByProjectId(String projectId) {
         return sheetRepository.findByProjectId(projectId);
     }
 
-    Sheet fetchSheetDetail(String sheetId) {
+    public Sheet fetchSheetDetail(String sheetId) {
         Sheet sheet = sheetRepository.findById(sheetId);
-        
+
         Task root = taskRepository.findRootById(sheetId);
         sheet.setRoot(root);
-        
+
         return sheet;
     }
 
-    Task createTask(String parentTaskId) {
+    public Task createTask(String parentTaskId) {
         Task task = new Task();
 
         taskRepository.save(parentTaskId, task);
@@ -65,7 +68,7 @@ public class WbsService {
         return task;
     }
 
-    void updateTask(String taskId, Integer effort, String name) {
+    public void updateTask(String taskId, Integer effort, String name) {
         Task task = taskRepository.findById(taskId);
 
         task.setEffort(effort);
@@ -74,7 +77,7 @@ public class WbsService {
         taskRepository.save(task);
     }
 
-    void deleteTask(String taskId) {
+    public void deleteTask(String taskId) {
         taskRepository.delete(taskId);
     }
 
@@ -84,25 +87,29 @@ public class WbsService {
         sheet.setName(sheetName);
 
         sheetRepository.save(projectId, sheet);
-        
+
         Task task = createTask(sheet.getSheetId());
         sheet.setRoot(task);
 
         return sheet;
     }
 
+    @Inject
     public void setUserRepository(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
+    @Inject
     public void setProjectRepository(ProjectRepository projectRepository) {
         this.projectRepository = projectRepository;
     }
 
+    @Inject
     public void setSheetRepository(SheetRepository sheetRepository) {
         this.sheetRepository = sheetRepository;
     }
 
+    @Inject
     public void setTaskRepository(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
