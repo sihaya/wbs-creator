@@ -18,21 +18,21 @@ import org.junit.BeforeClass;
  */
 public abstract class WbsIntegrationTest {
     protected static Repository repository;
-    protected static Session session;
+    protected static Session keepaliveSession;
     protected static InitRepository initRepository;
     
     @BeforeClass
     public static void setupRepos() throws Exception {
         repository = new TransientRepository(new File("./src/test/resources/repository.xml"), new File("./target/repositorytest"));
-        session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
+        keepaliveSession = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
         
         initRepository = new InitRepository();
-        initRepository.setSession(session);
+        initRepository.setRepository(repository);
         initRepository.init();
     }
     
     @AfterClass
     public static void shutdownRepos() {
-        session.logout();
+        keepaliveSession.logout();
     }
 }

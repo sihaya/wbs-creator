@@ -5,6 +5,7 @@
 package nl.desertspring.wbscreator.domain;
 
 import java.util.List;
+import javax.jcr.Session;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,11 +27,14 @@ public class SheetRepositoryTest extends WbsIntegrationTest {
     @Before
     public void setUp() throws Exception {
         username = "username1" + number++;
+        
+        Session session = SessionUtil.login(repository);
 
         projectId = session.getRootNode().getNode("wbs").addNode(username).addNode("projectName").getIdentifier();
         session.save();
+        session.logout();
 
-        sheetRepository.setSession(session);
+        sheetRepository.setRepository(repository);
     }
 
     @Test

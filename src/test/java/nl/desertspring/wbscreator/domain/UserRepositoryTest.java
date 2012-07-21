@@ -23,7 +23,7 @@ public class UserRepositoryTest extends WbsIntegrationTest {
         when(user.getPassword()).thenReturn("abcde");
         
         UserRepository userRepository = new UserRepository();
-        userRepository.setSession(session);
+        userRepository.setRepository(repository);
         
         userRepository.save(user);
         

@@ -9,10 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
+import javax.annotation.Resource;
+import javax.jcr.*;
 
 /**
  *
@@ -20,13 +18,20 @@ import javax.jcr.Session;
  */
 public class SheetRepository {
 
-    private Session session;
+    private Repository repository;
 
     public List<Sheet> findByProjectId(String projectId) {
+        Session session = null;
+
         try {
-            return handleFindByProjectId(projectId);
+            session = SessionUtil.login(repository);
+
+            return handleFindByProjectId(session, projectId);
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
+        }
+        finally {
+            SessionUtil.logout(session);
         }
     }
 
@@ -37,7 +42,7 @@ public class SheetRepository {
         return sheet;
     }
 
-    private List<Sheet> handleFindByProjectId(String projectId) throws RepositoryException {
+    private List<Sheet> handleFindByProjectId(Session session, String projectId) throws RepositoryException {
         Node node = session.getNodeByIdentifier(projectId);
 
         List<Sheet> result = new ArrayList<Sheet>();
@@ -46,19 +51,25 @@ public class SheetRepository {
         while (iter.hasNext()) {
             result.add(constructSheet(iter.nextNode()));
         }
-        
+
         return result;
     }
 
     public void save(String projectId, Sheet sheet) {
+        Session session = null;
+        
         try {
-            handleSave(projectId, sheet);
+            session = SessionUtil.login(repository);
+            
+            handleSave(session, projectId, sheet);
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
+        } finally {
+            SessionUtil.logout(session);
         }
     }
 
-    private void handleSave(String projectId, Sheet sheet) throws Exception {
+    private void handleSave(Session session, String projectId, Sheet sheet) throws Exception {
         Node projectNode = session.getNodeByIdentifier(projectId);
 
         Node sheetNode = projectNode.addNode(sheet.getName());
@@ -68,21 +79,28 @@ public class SheetRepository {
     }
 
     public Sheet findById(String id) {
+        Session session = null;
+        
         try {
-            return handleFindById(id);
+            session = SessionUtil.login(repository);
+            
+            return handleFindById(session, id);
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
+        } finally {
+            SessionUtil.logout(session);
         }
     }
 
-    private Sheet handleFindById(String id) throws Exception {
+    private Sheet handleFindById(Session session, String id) throws Exception {
         Node node = session.getNodeByIdentifier(id);
         Sheet sheet = constructSheet(node);
 
         return sheet;
     }
 
-    public void setSession(Session session) {
-        this.session = session;
+    @Resource(name = ResourceConstants.REPOSITORY)
+    public void setRepository(Repository repository) {
+        this.repository = repository;
     }
 }

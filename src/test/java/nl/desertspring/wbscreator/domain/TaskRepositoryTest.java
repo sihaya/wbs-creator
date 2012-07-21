@@ -23,12 +23,12 @@ public class TaskRepositoryTest extends WbsIntegrationTest {
     public void setUp() throws Exception {
         taskRepository = new TaskRepository();
         
-        taskRepository.setSession(session);
+        taskRepository.setSession(keepaliveSession);
         
         String username = "username" + counter++;
         
-        taskParentId = session.getRootNode().getNode("wbs").addNode(username).addNode("project").addNode("worksheet").addNode("task").getIdentifier();
-        session.save();
+        taskParentId = keepaliveSession.getRootNode().getNode("wbs").addNode(username).addNode("project").addNode("worksheet").addNode("task").getIdentifier();
+        keepaliveSession.save();
     }
     
     @Test

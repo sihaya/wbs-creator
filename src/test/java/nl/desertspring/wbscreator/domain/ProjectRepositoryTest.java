@@ -27,12 +27,12 @@ public class ProjectRepositoryTest extends WbsIntegrationTest {
         projectRepository = new ProjectRepository();
         username = "username1" + number++;
 
-        session.getRootNode().getNode("wbs").addNode(username);
-        session.save();
+        keepaliveSession.getRootNode().getNode("wbs").addNode(username);
+        keepaliveSession.save();
 
-        projectRepository.setSession(session);
+        projectRepository.setRepository(repository);
 
-        NodeIterator iter = session.getRootNode().getNodes();
+        NodeIterator iter = keepaliveSession.getRootNode().getNodes();
         while (iter.hasNext()) {
             Node node = iter.nextNode();
             String name = node.getPath();
