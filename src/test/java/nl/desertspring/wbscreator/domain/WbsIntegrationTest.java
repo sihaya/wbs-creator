@@ -33,6 +33,10 @@ public abstract class WbsIntegrationTest {
     
     @AfterClass
     public static void shutdownRepos() {
-        keepaliveSession.logout();
+        if (keepaliveSession != null) {
+            keepaliveSession.logout();
+            keepaliveSession = null;            
+        }
+        ((TransientRepository)repository).shutdown();
     }
 }
