@@ -62,6 +62,8 @@ public class WbsService {
 
     public Task createTask(String parentTaskId) {
         Task task = new Task();
+        task.setName("");
+        task.setEffort(0);
 
         taskRepository.save(parentTaskId, task);
 

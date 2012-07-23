@@ -1,0 +1,265 @@
+div.task-last > div.trunk > div.trunk-outer-erase {
+		background-color: white;
+    height: 150%;
+    left: -21px;
+    position: absolute;
+    top: -50px;
+    width: 5px;
+}
+
+div.task-detail {
+	width: 200px;
+	height: 100px;
+	border: 1px solid black;
+	margin-top: 5px;	
+	position: relative;
+}
+
+div.root > div.task-detail {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+div.vertical-line {
+	position: relative;
+	height: 1px;
+	width: 100%;
+	border-bottom: 2px solid black;
+	bottom: -12px;
+}
+
+div.vertical-line div.mask-left {
+	width: 151px;
+	height: 5px;
+	left: 0px;
+	position: absolute;
+	background-color: white;
+}
+
+div.vertical-line div.mask-left {
+	width: 151px;
+	height: 5px;
+	right: 0px;
+	position: absolute;
+	background-color: white;
+}
+
+div.subtask.last-task > div.task-detail div.mask-right {
+	position: absolute;
+	left: 101px;
+	height: 5px;
+	width: 100%;
+	background-color: white;
+	top: -18px;
+}
+
+div.task-detail div.topline, div.task-detail div.bottomline {
+	position: absolute;
+	left: 100px;
+	width: 5px;
+	height: 15px;
+	border-left: 1px solid black;
+	top: -15px;
+}
+
+div.task-detail div.bottomline {
+	bottom: -15px;
+	top: auto;
+}
+
+div.task-detail div.name { 
+	height: 45px;
+	text-align: center;
+	padding-top: 5px;
+}
+
+div.task-detail div.number { 
+	height: 1em;
+	width: 70px;
+	float: left;
+	padding-top: 5px;
+	padding-left: 5px;
+}
+
+div.task-detail div.effort {
+	height: 1em;
+	width: 95px;
+	float: right;
+	text-align: right;
+	padding-top: 5px;
+	padding-right: 5px;
+}
+
+div.task-detail div.line {
+	margin-top: 50px;
+	border-top: 1px solid black;
+	width: 10px;
+	float: left;
+	position: relative;
+	left: -11px;
+	height: 50px;
+}
+
+
+div.task-detail div.add-sibbling, div.task-detail div.add-child, div.task-detail div.del-task {
+	display: none;
+	position: absolute;
+	text-align: center;
+	background-color: red;
+	cursor: pointer;
+}
+
+div.task-detail:hover div.add-sibbling, div.task-detail:hover div.add-child, div.task-detail:hover div.del-task {
+	display: block;
+	position: absolute;
+}
+
+div.task-detail div.add-sibbling {
+	bottom: -5px;
+	width: 100%;	
+}
+
+div.task-detail div.add-child {
+	right: -5px;
+	width: 10px;
+	height: 20px;
+	top: 40px;
+}
+
+div.task-detail div.del-task {
+	right: -5px;
+	width: 10px;
+	height: 20px;
+	top: 60px;
+}
+
+div.task-detail input {
+	display: none;
+}
+
+div.task-detail.editing span {
+	display: none;
+}
+
+div.task-detail.editing input {
+	display: block;
+	background: none repeat scroll 0 0 transparent;
+  border: 0 none;
+  display: block;
+  font-family: arial;
+  margin: 0;
+  padding: 0;
+  text-align: right;
+  width: 90%;
+  color: black;
+  vertical-align: top;
+}
+
+div.task-detail button.done {
+	display: none;
+}
+
+div.task-detail.editing button.done {
+	display: inline;
+	right: -15px;
+	top: -15px;
+	position: absolute;
+}
+
+div.task-detail div.name input {
+	text-align: center;
+}
+
+
+div.trunk {
+	border-left: 1px solid black;
+	margin-left: 5px;
+	position: relative;
+	padding-top: 5px;	
+}
+
+
+div.subsubtask div.trunk {
+	margin-left: 15px;
+}
+
+div.trunk-erase {
+	position: absolute;
+	bottom: 0px;
+	width: 5px;
+	height: 50px;
+	background-color: white;
+	left:-5px;
+}
+
+
+div.subsubtask > div.task-detail {
+	margin-left: 10px;
+}
+
+html, body, div.inner {
+	width: 100%;
+}
+
+div.inner { 
+	
+}
+
+div.root {
+	float: left;
+}
+
+div.subtask {
+	float: left;
+	margin-left: 50px;
+	margin-top: 20px;
+}
+
+
+/* css3 */
+div.task-detail {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	color: #050505;
+	
+	background: -moz-linear-gradient(
+		top,
+		#ffffff 0%,
+		#c7d95f 50%,
+		#add136 50%,
+		#6d8000);
+	background: -webkit-gradient(
+		linear, left top, left bottom, 
+		from(#ffffff),
+		color-stop(0.50, #c7d95f),
+		color-stop(0.50, #add136),
+		to(#6d8000));
+	border-radius: 14px;
+	-moz-border-radius: 14px;
+	-webkit-border-radius: 14px;
+	border: 1px solid #6d8000;
+	box-shadow:
+		0px 1px 3px rgba(000,000,000,0.5),
+		inset 0px 0px 2px rgba(255,255,255,1);
+	-webkit-box-shadow:
+		0px 1px 3px rgba(000,000,000,0.5),
+		inset 0px 0px 2px rgba(255,255,255,1);
+	text-shadow:
+		0px -1px 0px rgba(000,000,000,0.2),
+		0px 1px 0px rgba(255,255,255,0.4);
+}
+
+div.dialog {
+	display: none;
+	position: absolute;
+	left: 40%;
+	top: 40%;
+	width: 300px;
+	height: 300px;
+	background-color: grey;
+}
+
+label { 
+	display: block;
+}
+

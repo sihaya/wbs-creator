@@ -1,0 +1,1 @@
+var host = "http://<%= request.getServerName() + ":" + request.getServerPort() + request.getServletContext().getContextPath() + "/rest/wbs/"  %>";

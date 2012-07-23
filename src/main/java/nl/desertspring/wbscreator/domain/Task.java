@@ -8,6 +8,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -63,10 +65,10 @@ public class Task implements Serializable {
         return Collections.unmodifiableList(subTasks);
     }
 
-    void setSubTasks(List<Task> subTasks) {
+    public void setSubTasks(List<Task> subTasks) {
         this.subTasks = subTasks;
     }
-    
+
     public String getTaskId() {
         return taskId;
     }

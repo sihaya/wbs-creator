@@ -10,8 +10,12 @@
         </session-timeout>
     </session-config>
     
-   <servlet>
+    <servlet>
         <servlet-name>javax.ws.rs.core.Application</servlet-name>
+        <init-param>
+            <param-name>com.sun.jersey.config.property.packages</param-name>
+            <param-value>nl.desertspring.wbscreator;org.codehaus.jackson.jaxrs</param-value>
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
