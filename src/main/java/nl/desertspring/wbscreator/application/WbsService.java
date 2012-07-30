@@ -95,6 +95,12 @@ public class WbsService {
 
         return sheet;
     }
+        
+    public void addMemberToProject(String projectId, String username) {
+        String userId = userRepository.getId(username);
+        
+        projectRepository.addMemberToProject(projectId, userId);
+    }
 
     @Inject
     public void setUserRepository(UserRepository userRepository) {
@@ -114,5 +120,5 @@ public class WbsService {
     @Inject
     public void setTaskRepository(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
-    }
+    }    
 }

@@ -49,7 +49,12 @@ public class SheetRepository {
         NodeIterator iter = node.getNodes();
 
         while (iter.hasNext()) {
-            result.add(constructSheet(iter.nextNode()));
+            Node sheetNode = iter.nextNode();
+            if (sheetNode.getName().equals("members")) {
+                continue;
+            }
+            
+            result.add(constructSheet(sheetNode));
         }
 
         return result;

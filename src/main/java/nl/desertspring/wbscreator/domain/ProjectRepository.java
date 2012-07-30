@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.jcr.*;
+import javax.jcr.query.Query;
 
 /**
  *
@@ -17,8 +19,9 @@ import javax.jcr.*;
  */
 @Stateless
 public class ProjectRepository {
-
+    
     private Repository repository;
+    private UserFactory userFactory;
 
     public void save(String username, Project project) {
         handleSave(username, project);
@@ -27,26 +30,52 @@ public class ProjectRepository {
     public List<Project> findProjectByUsername(String username) {
         Session session = null;
 
-        List<Project> result = new ArrayList<Project>();
+        List<Project> result = new ArrayList<Project>();        
         try {
             session = SessionUtil.login(repository);
-            NodeIterator nodes = session.getRootNode().getNode("wbs").getNode(username).getNodes();
+            
+            Node usernode = session.getRootNode().getNode("wbs").getNode(username);
+            NodeIterator nodes = usernode.getNodes();
             while (nodes.hasNext()) {
                 Node projectNode = nodes.nextNode();
-
-                Project project = new Project();
-                project.setProjectId(projectNode.getIdentifier());
-                project.setName(projectNode.getProperty("projectName").getName());
+                Project project = createProject(projectNode);
 
                 result.add(project);
             }
-
+            
+            
+            NodeIterator otherProjects = session.getWorkspace().getQueryManager().createQuery(
+                    "//members/member[userId='" + usernode.getIdentifier() + "']", 
+                    Query.XPATH).execute().getNodes();
+            while(otherProjects.hasNext()) {
+                Node projectNode = otherProjects.nextNode().getParent().getParent();
+                
+                Project project = createProject(projectNode);
+                result.add(project);
+            }
+            
             return result;
         } catch (RepositoryException ex) {
             throw new IllegalStateException(ex);
         } finally { 
-            
+            SessionUtil.logout(session);
         }
+    }
+
+    private Project createProject(Node projectNode) throws RepositoryException {
+        Project project = new Project();
+        project.setProjectId(projectNode.getIdentifier());
+        project.setName(projectNode.getProperty("projectName").getName());
+        List<User> membersResult = new ArrayList<User>();
+        NodeIterator members = projectNode.getNode("members").getNodes();
+        while(members.hasNext()) {
+            Node memberNode = members.nextNode();                    
+            Node userNode = memberNode.getProperty("userId").getNode();
+            
+            membersResult.add(userFactory.create(userNode));
+        }
+        project.setMembers(membersResult);
+        return project;
     }
 
     @Resource(name = ResourceConstants.REPOSITORY)
@@ -60,6 +89,7 @@ public class ProjectRepository {
             session = SessionUtil.login(repository);
             Node projectNode = session.getRootNode().getNode("wbs").getNode(username).addNode("project");
 
+            projectNode.addNode("members");
             projectNode.setProperty("projectName", project.getName());
             project.setProjectId(projectNode.getIdentifier());
 
@@ -69,5 +99,30 @@ public class ProjectRepository {
         } finally {
             SessionUtil.logout(session);
         }
+    }
+    
+    public void addMemberToProject(String projectId, String userId) {
+        Session session = null;        
+        try {
+            session = SessionUtil.login(repository);
+                                    
+            Node projectNode = session.getNodeByIdentifier(projectId);
+                        
+            Node membersNode = projectNode.getNode("members");
+            Node memberNode = membersNode.addNode("member");
+            
+            memberNode.setProperty("userId", session.getNodeByIdentifier(userId));
+            
+            session.save();
+        } catch(RepositoryException ex) {
+            throw new IllegalStateException(ex);
+        } finally {
+            SessionUtil.logout(session);
+        }
+    }
+
+    @Inject
+    public void setUserFactory(UserFactory userFactory) {
+        this.userFactory = userFactory;
     }
 }

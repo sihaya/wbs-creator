@@ -4,11 +4,15 @@
  */
 package nl.desertspring.wbscreator.domain;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 /**
  * Represents a user in the system.
  *
  * @author sihaya
  */
+@XmlRootElement
 public class User {
 
     private String username;
@@ -32,6 +36,7 @@ public class User {
     /**
      * @return the password
      */
+    @XmlTransient
     public String getPassword() {
         return password;
     }

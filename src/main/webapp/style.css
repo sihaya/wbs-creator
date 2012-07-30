@@ -263,3 +263,6 @@ label {
 	display: block;
 }
 
+#dialog-members {
+	left: 50px;
+}

@@ -6,6 +6,7 @@ package nl.desertspring.wbscreator.domain;
 
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -17,7 +18,7 @@ import javax.jcr.Session;
  */
 @Stateless
 public class UserRepository {
-
+    private UserFactory userFactory;
     private Repository repository;
 
     public void save(User user) {
@@ -25,13 +26,14 @@ public class UserRepository {
         
         try {
             session = SessionUtil.login(repository);
-            Node wbs = session.getRootNode().getNode("wbs");
+            Node wbs = getWbsNode(session);
 
             if (wbs.hasNode(user.getUsername())) {
                 throw new IllegalStateException("User already exists");
             }
 
             Node userNode = wbs.addNode(user.getUsername());
+            userNode.addMixin("mix:referenceable");
             userNode.setProperty("email", user.getEmail());
             userNode.setProperty("password", user.getPassword());
 
@@ -42,6 +44,25 @@ public class UserRepository {
             session.logout();
         }
     }
+    
+    public String getId(String username) {
+        Session session = null;
+        
+        try {
+            session = SessionUtil.login(repository);
+            Node wbs = getWbsNode(session);
+            
+            return wbs.getNode(username).getIdentifier();
+        } catch(RepositoryException ex) {
+            throw new IllegalStateException(ex);
+        } finally {
+            session.logout();
+        }
+    }
+    
+    private Node getWbsNode(Session session) throws RepositoryException {
+        return session.getRootNode().getNode("wbs");
+    }
 
     public User authenticate(String username, String password) {
         Session session = null;
@@ -49,7 +70,7 @@ public class UserRepository {
         try {
             session = SessionUtil.login(repository);
             
-            Node wbs = session.getNode("/wbs");
+            Node wbs = getWbsNode(session);
 
             if (!wbs.hasNode(username)) {
                 throw new IllegalStateException("No user by this name");
@@ -61,11 +82,7 @@ public class UserRepository {
                 throw new IllegalStateException("Incorrect password");
             }
 
-            User user = new User();
-            user.setEmail(userNode.getProperty("email").getString());
-            user.setUsername(username);
-
-            return user;
+            return userFactory.create(userNode);
         } catch (RepositoryException ex) {
             throw new IllegalStateException(ex);
         } finally {
@@ -76,5 +93,10 @@ public class UserRepository {
     @Resource(name = ResourceConstants.REPOSITORY)
     public void setRepository(Repository repository) {
         this.repository = repository;
+    }
+
+    @Inject
+    public void setUserFactory(UserFactory userFactory) {
+        this.userFactory = userFactory;
     }
 }

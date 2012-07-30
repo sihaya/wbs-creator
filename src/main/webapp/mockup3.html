@@ -312,11 +312,12 @@
 						$('.link', template).html(project.name);
 						$('.link', template).click(function() {
 							projectId = project.projectId;
-							
+
 							$('#dialog-project').hide();
 							$('#dialog-sheet').show();
-							
-							showSheets();
+														
+							showSheets();						
+							updateMembers(project);
 						});
 						$('#list-projects tbody').append(template);
 				}); 
@@ -324,6 +325,8 @@
 		};
 		
 		var showSheets = function() {
+			$('#dialog-members').show();
+						
 			$.ajax({type: 'GET', url: host + 'project/' + projectId}).success(function(data) {
 					$('#list-sheets tbody').html('');
 				
@@ -335,7 +338,7 @@
 							sheetId = sheet.sheetId;
 							
 							$('#dialog-sheet').hide();
-							
+							$('.dialog').hide();
 							getTaskModel();
 						});
 						$('#list-sheets tbody').append(template);
@@ -344,8 +347,31 @@
 		};
 	});
 	
-	
+	var updateMembers = function(sheet) {
+		$('#dialog-members tbody').html('');
+		
+		$('#add-member').click(function() {
+			alert("bobos");
+			$.ajax({url: host + 'project/' + projectId + '/members/' + $('#member-username').val(),
+				type: 'POST'});
+		});
+		
+		if (!sheet.members) {
+			return;
+		}
+		
+		$.each(sheet.members, function(i, member) {
+			var template = '<tr><td class="username"></td></tr>';
+			template = $(template);
+			
+			$('.username', template).html(member.username);			
+			$('#dialog-members tbody').append(template);			
+		});		
+	}
+		
 	var getTaskModel = function() {		
+		
+	
 		$.ajax({url: host + 'sheet/' + sheetId})
 			.done(function(data) {
 				model = data.root;
@@ -402,10 +428,22 @@
 	<div><button id="create-project">Create project</button></div>
 </div>
 
+<div class="dialog" id="dialog-members">
+	<table id="list-members">
+		<tr><td>Name</td></tr>
+	</table>
+	
+	<label>Username</label>
+	<input type="text" id="member-username"/>
+
+	<div><button id="add-member">Add member</button></div>	
+</div>
+
 <div class="inner">
 	<div class="root">
 			
 	</div>
 </div>
+
 </body>
 </html>

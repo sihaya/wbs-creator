@@ -124,6 +124,12 @@ public class WbsRestService {
         return Response.created(context.getAbsolutePathBuilder().path(taskId).build()).build();
     }
     
+    @POST
+    @Path("project/{projectId}/members/{username}")
+    public void updateTask(@PathParam("projectId")String projectId, @PathParam("username")String username) {
+        wbsService.addMemberToProject(projectId, username);
+    }
+    
     @DELETE
     @Path("task")
     public void deleteTask(@FormParam("taskId")String taskId) {

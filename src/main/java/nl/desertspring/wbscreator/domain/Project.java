@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Project implements Serializable {
 
+    private List<User> members;
     private String name;
     private String projectId;
 
@@ -34,4 +35,12 @@ public class Project implements Serializable {
     public void setProjectId(String projectId) {
         this.projectId = projectId;
     }
+
+    public List<User> getMembers() {
+        return members;
+    }
+
+    public void setMembers(List<User> members) {
+        this.members = members;
+    }    
 }
