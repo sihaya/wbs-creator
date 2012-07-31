@@ -340,18 +340,50 @@
 							$('#dialog-sheet').hide();
 							$('.dialog').hide();
 							getTaskModel();
+							$('#dialog-share').show();
 						});
 						$('#list-sheets tbody').append(template);
 				}); 
 		});
 		};
+		
+		$('#generate-share').click(function() {
+		$.ajax({url: host + "sheet/public", type: 'POST', data: { 'sheetId': sheetId }}).complete(function(xhr, data) {
+					var response = xhr.getResponseHeader('location');
+					var last = response.split('\/');
+					last = last[last.length - 1];
+					
+					$('#publicUrl').val(window.location + "#publicSecret=" + last);
+		});
 	});
+	
+		var url = window.location.toString();
+	
+		var idx = url.indexOf('publicSecret');
+
+		if (idx != -1) {
+			var publicSecret = url.substring(idx).replace("publicSecret=", "");
+
+								
+			$.ajax({url: host + 'sheet/public/' + publicSecret}).done(function(data) {
+				model = data.root;
+				
+				$('.dialog').hide();
+				draw();
+				
+				
+			});
+		}
+		
+	
+	});
+	
 	
 	var updateMembers = function(sheet) {
 		$('#dialog-members tbody').html('');
 		
 		$('#add-member').click(function() {
-			alert("bobos");
+
 			$.ajax({url: host + 'project/' + projectId + '/members/' + $('#member-username').val(),
 				type: 'POST'});
 		});
@@ -437,6 +469,11 @@
 	<input type="text" id="member-username"/>
 
 	<div><button id="add-member">Add member</button></div>	
+</div>
+
+<div class="dialog" id="dialog-share">
+	<button id="generate-share">Share this sheet</button>
+	<textarea id="publicUrl"></textarea>
 </div>
 
 <div class="inner">

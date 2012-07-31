@@ -97,6 +97,25 @@ public class WbsRestService {
 
         return sheet;
     }
+    
+    @GET
+    @Path("sheet/public/{publicSecret}")
+    @Produces("application/json")
+    public Sheet fetchSheetDetailPublic(@PathParam("publicSecret")String publicSecret) {
+        Sheet sheet = wbsService.findSheetByPublicSecret(publicSecret);
+        
+        return wbsService.fetchSheetDetail(sheet.getSheetId());
+    }
+    
+    @POST
+    @Path("sheet/public")
+    public Response createSheet(@FormParam("sheetId") String sheetId) {
+        wbsService.grantPublicRead(sheetId);
+        
+        Sheet sheet = wbsService.fetchSheetDetail(sheetId);
+
+        return Response.created(context.getAbsolutePathBuilder().path(sheet.getPublicSecret()).build()).build();
+    }
 
     @POST
     @Path("task")
@@ -135,6 +154,7 @@ public class WbsRestService {
     public void deleteTask(@FormParam("taskId")String taskId) {
         wbsService.deleteTask(taskId);
     }
+    
 
     @Inject
     public void setWbsService(WbsService wbsService) {

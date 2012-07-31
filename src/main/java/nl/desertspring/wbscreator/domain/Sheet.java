@@ -5,6 +5,7 @@
 package nl.desertspring.wbscreator.domain;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * A sheet containing a work breakdown structure with a single root.
@@ -17,6 +18,7 @@ public class Sheet {
     private String sheetId;
     private String name;    
     private Task root;
+    private String publicSecret;
 
     public void setSheetId(String sheetId) {
         this.sheetId = sheetId;
@@ -40,5 +42,14 @@ public class Sheet {
     
     public void setRoot(Task root) {
         this.root = root;
+    }
+
+    @XmlTransient
+    public String getPublicSecret() {
+        return publicSecret;
+    }
+
+    public void setPublicSecret(String publicSecret) {
+        this.publicSecret = publicSecret;
     }
 }

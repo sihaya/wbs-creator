@@ -7,10 +7,12 @@ package nl.desertspring.wbscreator.domain;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.jcr.*;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryResult;
+import org.apache.jackrabbit.commons.webdav.QueryUtil;
+import org.apache.jackrabbit.util.Text;
 
 /**
  *
@@ -18,6 +20,7 @@ import javax.jcr.*;
  */
 public class SheetRepository {
 
+    private static final String ATTR_PUBLIC_SECRET = "publicSecret";
     private Repository repository;
 
     public List<Sheet> findByProjectId(String projectId) {
@@ -29,8 +32,7 @@ public class SheetRepository {
             return handleFindByProjectId(session, projectId);
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
-        }
-        finally {
+        } finally {
             SessionUtil.logout(session);
         }
     }
@@ -39,6 +41,11 @@ public class SheetRepository {
         Sheet sheet = new Sheet();
         sheet.setName(node.getName());
         sheet.setSheetId(node.getIdentifier());
+
+        if (node.hasProperty(ATTR_PUBLIC_SECRET)) {
+            sheet.setPublicSecret(node.getProperty(ATTR_PUBLIC_SECRET).getString());
+        }
+
         return sheet;
     }
 
@@ -53,7 +60,7 @@ public class SheetRepository {
             if (sheetNode.getName().equals("members")) {
                 continue;
             }
-            
+
             result.add(constructSheet(sheetNode));
         }
 
@@ -62,10 +69,10 @@ public class SheetRepository {
 
     public void save(String projectId, Sheet sheet) {
         Session session = null;
-        
+
         try {
             session = SessionUtil.login(repository);
-            
+
             handleSave(session, projectId, sheet);
         } catch (Exception ex) {
             throw new IllegalStateException(ex);
@@ -85,12 +92,55 @@ public class SheetRepository {
 
     public Sheet findById(String id) {
         Session session = null;
-        
+
         try {
             session = SessionUtil.login(repository);
-            
+
             return handleFindById(session, id);
         } catch (Exception ex) {
+            throw new IllegalStateException(ex);
+        } finally {
+            SessionUtil.logout(session);
+        }
+    }
+
+    public void update(Sheet sheet) {
+        Session session = null;
+
+        try {
+            session = SessionUtil.login(repository);
+
+            Node node = session.getNodeByIdentifier(sheet.getSheetId());
+
+            if (sheet.getPublicSecret() != null) {
+                node.setProperty(ATTR_PUBLIC_SECRET, sheet.getPublicSecret());
+            }
+
+            session.save();
+        } catch (Exception ex) {
+            throw new IllegalStateException(ex);
+        } finally {
+            SessionUtil.logout(session);
+        }
+    }
+
+    public Sheet findByPublicSecret(String publicSecret) {
+        Session session = null;
+
+        try {
+            session = SessionUtil.login(repository);
+
+            Query query = session.getWorkspace().getQueryManager().createQuery(
+                    "//*[@publicSecret = '" + Text.escapeIllegalJcrChars(publicSecret) + "']", Query.XPATH);
+
+            NodeIterator result = query.execute().getNodes();
+
+            if (result.hasNext()) {
+                return constructSheet(result.nextNode());
+            }
+
+            return null;
+        } catch (RepositoryException ex) {
             throw new IllegalStateException(ex);
         } finally {
             SessionUtil.logout(session);

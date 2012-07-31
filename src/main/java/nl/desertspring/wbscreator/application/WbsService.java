@@ -22,6 +22,7 @@ public class WbsService {
     private SheetRepository sheetRepository;
     private TaskRepository taskRepository;
     private ProjectRepository projectRepository;
+    private RandomGenerator randomGenerator;
 
     public void createUser(String username, String password, String email) {
         User user = new User();
@@ -95,11 +96,26 @@ public class WbsService {
 
         return sheet;
     }
-        
+
     public void addMemberToProject(String projectId, String username) {
         String userId = userRepository.getId(username);
-        
+
         projectRepository.addMemberToProject(projectId, userId);
+    }
+
+    public void grantPublicRead(String sheetId) {
+        Sheet sheet = sheetRepository.findById(sheetId);
+        
+        if (sheet.getPublicSecret() != null) {
+            return;
+        }
+        
+        sheet.setPublicSecret(randomGenerator.generateSecret());
+        sheetRepository.update(sheet);        
+    }
+    
+    public Sheet findSheetByPublicSecret(String publicSecret) {
+        return sheetRepository.findByPublicSecret(publicSecret);
     }
 
     @Inject
@@ -120,5 +136,10 @@ public class WbsService {
     @Inject
     public void setTaskRepository(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
+    }
+
+    @Inject
+    public void setRandomGenerator(RandomGenerator randomGenerator) {
+        this.randomGenerator = randomGenerator;
     }    
 }

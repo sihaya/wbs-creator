@@ -216,4 +216,45 @@ public class WbsServiceTest {
         
         verify(projectRepository).addMemberToProject(projectId, userId);
     }
+    
+    @Test
+    public void givenASheetIdGrantPublicSetsKey() {
+        WbsService wbsService = new WbsService();
+        
+        final String sheetId = "423422";
+        final String publicSecret = "secretkey";
+        final RandomGenerator randomGenerator = mock(RandomGenerator.class);
+        final SheetRepository sheetRepository = mock(SheetRepository.class);
+        
+        wbsService.setRandomGenerator(randomGenerator);
+        wbsService.setSheetRepository(sheetRepository);
+        
+        Sheet sheet = new Sheet();
+        
+        when(randomGenerator.generateSecret()).thenReturn(publicSecret);
+        when(sheetRepository.findById(sheetId)).thenReturn(sheet);
+        
+        wbsService.grantPublicRead(sheetId);
+        
+        verify(sheetRepository).update(sheet);
+                
+        assertEquals(publicSecret, sheet.getPublicSecret());
+    }
+    
+    @Test
+    public void givenAPublicKeyReturnsSheet() {
+        WbsService wbsService = new WbsService();
+        
+        final String publicSecret = "42342423";
+        final SheetRepository sheetRepository = mock(SheetRepository.class);
+        
+        wbsService.setSheetRepository(sheetRepository);
+        
+        Sheet sheet = new Sheet();
+        when(sheetRepository.findByPublicSecret(publicSecret)).thenReturn(sheet);
+        
+        Sheet actual = wbsService.findSheetByPublicSecret(publicSecret);
+        
+        assertEquals(sheet, actual);
+    }
 }

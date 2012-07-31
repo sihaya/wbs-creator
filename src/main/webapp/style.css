@@ -266,3 +266,14 @@ label {
 #dialog-members {
 	left: 50px;
 }
+
+#dialog-share {
+		background-color: grey;
+    display: none;
+    height: 90px;
+    position: absolute;
+    right: 0;
+    left: auto;
+    top: 0;
+    width: 180px;
+}

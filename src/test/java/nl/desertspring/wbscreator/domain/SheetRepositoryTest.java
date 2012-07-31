@@ -76,4 +76,42 @@ public class SheetRepositoryTest extends WbsIntegrationTest {
         
         assertEquals(1, sheets.size());
     }   
+    
+    @Test
+    public void given_an_existing_task_update_saves() {
+        final String name = "anothersheet";
+
+        Sheet sheet = new Sheet();
+        sheet.setName(name);
+        
+        sheetRepository.save(projectId, sheet);
+        
+        final String publicSecret = "secret";
+        sheet.setPublicSecret(publicSecret);
+        
+        sheetRepository.update(sheet);
+        
+        Sheet actual = sheetRepository.findById(sheet.getSheetId());
+        
+        assertEquals(publicSecret, actual.getPublicSecret());
+    }
+    
+    @Test
+    public void given_a_public_secret_find_returns() {
+        final String name = "anothersheet";
+
+        Sheet sheet = new Sheet();
+        sheet.setName(name);
+        
+        sheetRepository.save(projectId, sheet);
+        
+        final String publicSecret = "secret534";
+        sheet.setPublicSecret(publicSecret);
+        
+        sheetRepository.update(sheet);
+        
+        Sheet actual = sheetRepository.findByPublicSecret(sheet.getPublicSecret());
+        
+        assertEquals(sheet.getSheetId(), actual.getSheetId());
+    }
 }
