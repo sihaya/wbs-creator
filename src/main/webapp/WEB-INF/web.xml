@@ -10,6 +10,17 @@
         </session-timeout>
     </session-config>
     
+    <filter>
+        <filter-name>Shiro</filter-name>
+        <filter-class>
+            org.apache.shiro.web.servlet.IniShiroFilter
+        </filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>Shiro</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
     <servlet>
         <servlet-name>javax.ws.rs.core.Application</servlet-name>
         <init-param>

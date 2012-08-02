@@ -73,6 +73,18 @@
             <artifactId>slf4j-log4j12</artifactId> 
             <version>1.6.6</version> 
         </dependency> 
+        
+        <!-- Use Shiro for authorization and authentication -->
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-web</artifactId>
+            <version>1.2.0</version>
+        </dependency>
     </dependencies>
 
     <build>

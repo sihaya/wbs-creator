@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import javax.jcr.Node;
 import nl.desertspring.wbscreator.domain.*;
+import org.apache.shiro.subject.Subject;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -31,7 +32,7 @@ public class WbsServiceTest {
         UserRepository userRepository = mock(UserRepository.class);
 
         wbsService.setUserRepository(userRepository);
-        wbsService.createUser(username, password, email);
+        wbsService.createUser(username, password.toCharArray(), email);
 
         ArgumentCaptor<User> user = ArgumentCaptor.forClass(User.class);
 
@@ -41,15 +42,19 @@ public class WbsServiceTest {
     }
 
     @Test
-    public void givenAProjectNameAndUsernameCreateSavesNewProject() {
+    public void givenAProjectNameAndUsernameCreateSavesNewProject() {                
         WbsService wbsService = new WbsService();
         final String username = "username";
         final String projectName = "projectname";
+        
+        SecurityUtil securityUtil = mock(SecurityUtil.class);
+        when(securityUtil.getSubjectUsername()).thenReturn(username);
 
         ProjectRepository projectRepository = mock(ProjectRepository.class);
         wbsService.setProjectRepository(projectRepository);
+        wbsService.setSecurityUtil(securityUtil);
 
-        Project projectActual = wbsService.createProject(username, projectName);
+        Project projectActual = wbsService.createProject(projectName);
 
         ArgumentCaptor<Project> project = ArgumentCaptor.forClass(Project.class);
         verify(projectRepository).save(eq(username), project.capture());

@@ -4,6 +4,7 @@
  */
 package nl.desertspring.wbscreator.domain;
 
+import java.util.Arrays;
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -35,7 +36,7 @@ public class UserRepository {
             Node userNode = wbs.addNode(user.getUsername());
             userNode.addMixin("mix:referenceable");
             userNode.setProperty("email", user.getEmail());
-            userNode.setProperty("password", user.getPassword());
+            userNode.setProperty("password", user.getPassword().toString());
 
             session.save();
         } catch (RepositoryException ex) {
@@ -64,7 +65,7 @@ public class UserRepository {
         return session.getRootNode().getNode("wbs");
     }
 
-    public User authenticate(String username, String password) {
+    public User authenticate(String username, char[] password) {
         Session session = null;
         
         try {
@@ -78,7 +79,7 @@ public class UserRepository {
 
             Node userNode = wbs.getNode(username);
 
-            if (!userNode.getProperty("password").getString().equals(password)) {
+            if (!Arrays.equals(userNode.getProperty("password").getString().toCharArray(), password)) {
                 throw new IllegalStateException("Incorrect password");
             }
 

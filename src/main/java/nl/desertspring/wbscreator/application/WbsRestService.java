@@ -7,10 +7,6 @@ package nl.desertspring.wbscreator.application;
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.api.json.JSONJAXBContext;
 import java.util.List;
-import javax.annotation.ManagedBean;
-import javax.annotation.Resource;
-import javax.ejb.EJB;
-import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -29,7 +25,6 @@ import nl.desertspring.wbscreator.domain.Task;
  * @author sihaya
  */
 @Stateless
-@LocalBean
 @Path("wbs")
 public class WbsRestService {
 
@@ -53,7 +48,7 @@ public class WbsRestService {
 
     @POST
     @Path("user")
-    public Response createUser(@FormParam("username") String username, @FormParam("password") String password, @FormParam("email") String email) {
+    public Response createUser(@FormParam("username") String username, @FormParam("password") char[] password, @FormParam("email") String email) {
         wbsService.createUser(username, password, email);
 
         return Response.created(context.getAbsolutePath()).build();
@@ -68,8 +63,8 @@ public class WbsRestService {
 
     @POST
     @Path("project")
-    public Response createProject(@FormParam("username") String username, @FormParam("projectName") String projectName) {
-        Project project = wbsService.createProject(username, projectName);
+    public Response createProject(@FormParam("projectName") String projectName) {
+        Project project = wbsService.createProject(projectName);
 
         return Response.created(context.getAbsolutePathBuilder().path(project.getProjectId()).build()).build();
     }
@@ -162,7 +157,7 @@ public class WbsRestService {
     }
 
     @Context
-    public void setContext(UriInfo context) {
+    public void setContext(UriInfo context) {        
         this.context = context;
     }
 }

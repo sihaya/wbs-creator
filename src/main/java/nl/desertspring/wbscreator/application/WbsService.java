@@ -23,8 +23,9 @@ public class WbsService {
     private TaskRepository taskRepository;
     private ProjectRepository projectRepository;
     private RandomGenerator randomGenerator;
+    private SecurityUtil securityUtil;
 
-    public void createUser(String username, String password, String email) {
+    public void createUser(String username, char[] password, String email) {
         User user = new User();
 
         user.setEmail(email);
@@ -34,12 +35,12 @@ public class WbsService {
         userRepository.save(user);
     }
 
-    public Project createProject(String username, String projectName) {
+    public Project createProject(String projectName) {
         Project project = new Project();
 
         project.setName(projectName);
 
-        projectRepository.save(username, project);
+        projectRepository.save(securityUtil.getSubjectUsername(), project);
 
         return project;
     }
@@ -141,5 +142,10 @@ public class WbsService {
     @Inject
     public void setRandomGenerator(RandomGenerator randomGenerator) {
         this.randomGenerator = randomGenerator;
-    }    
+    }
+
+    @Inject
+    public void setSecurityUtil(SecurityUtil securityUtil) {
+        this.securityUtil = securityUtil;
+    }
 }

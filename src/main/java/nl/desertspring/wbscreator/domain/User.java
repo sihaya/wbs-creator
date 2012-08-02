@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlTransient;
 public class User {
 
     private String username;
-    private String password;
+    private char[] password;
     private String email;
 
     /**
@@ -37,14 +37,14 @@ public class User {
      * @return the password
      */
     @XmlTransient
-    public String getPassword() {
+    public char[] getPassword() {
         return password;
     }
 
     /**
      * @param password the password to set
      */
-    public void setPassword(String password) {
+    public void setPassword(char[] password) {
         this.password = password;
     }
 

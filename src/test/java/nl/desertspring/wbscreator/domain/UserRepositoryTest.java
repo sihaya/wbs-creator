@@ -23,7 +23,7 @@ public class UserRepositoryTest extends WbsIntegrationTest {
         
         when(user.getUsername()).thenReturn("pete");
         when(user.getEmail()).thenReturn(email);
-        when(user.getPassword()).thenReturn("abcde");
+        when(user.getPassword()).thenReturn("abcde".toCharArray());
         
         UserRepository userRepository = new UserRepository();
         userRepository.setRepository(repository);
@@ -34,7 +34,7 @@ public class UserRepositoryTest extends WbsIntegrationTest {
         when(userFactory.create(any(Node.class))).thenReturn(expected);
         userRepository.setUserFactory(userFactory);
                         
-        User actual = userRepository.authenticate("pete", "abcde");
+        User actual = userRepository.authenticate("pete", "abcde".toCharArray());
         
         assertEquals(expected, actual);
     }
@@ -50,7 +50,7 @@ public class UserRepositoryTest extends WbsIntegrationTest {
         
         when(user.getUsername()).thenReturn(username);
         when(user.getEmail()).thenReturn("email@email.com");
-        when(user.getPassword()).thenReturn("abcde");
+        when(user.getPassword()).thenReturn("abcde".toCharArray());
         
         userRepository.save(user);
         
