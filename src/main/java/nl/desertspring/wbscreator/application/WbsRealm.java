@@ -6,6 +6,10 @@ package nl.desertspring.wbscreator.application;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import nl.desertspring.wbscreator.domain.User;
 import nl.desertspring.wbscreator.domain.UserRepository;
 import org.apache.shiro.authc.*;
@@ -34,14 +38,24 @@ public class WbsRealm extends AuthorizingRealm {
         
         User user = getUserRepository().authenticate(usernamePasswordToken.getUsername(), usernamePasswordToken.getPassword());
         
-        return new SimpleAuthenticationInfo(user.getUsername(), token, getName());
+        return new SimpleAuthenticationInfo(user.getUsername(), usernamePasswordToken.getPassword(), getName());
     }
     
     private UserRepository getUserRepository() {
-        return userRepository;
+        return userRepository == null ? lookupUserRepository() : userRepository;
     }
 
     public void setUserRepository(UserRepository userRepository) {
         this.userRepository = userRepository;
-    }    
+    }
+
+    private UserRepository lookupUserRepository() {
+        try {
+            InitialContext ctx = new InitialContext();
+            return (UserRepository) ctx.lookup("java:global/nl.desertspring_wbs-creator_war_1.0-SNAPSHOT/UserRepository");
+        } catch (NamingException ex) {
+            Logger.getLogger(WbsRealm.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException(ex);
+        }
+    }
 }

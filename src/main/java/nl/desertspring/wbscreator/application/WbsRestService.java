@@ -48,8 +48,8 @@ public class WbsRestService {
 
     @POST
     @Path("user")
-    public Response createUser(@FormParam("username") String username, @FormParam("password") char[] password, @FormParam("email") String email) {
-        wbsService.createUser(username, password, email);
+    public Response createUser(@FormParam("username") String username, @FormParam("password") String password, @FormParam("email") String email) {
+        wbsService.createUser(username, password.toCharArray(), email);
 
         return Response.created(context.getAbsolutePath()).build();
     }

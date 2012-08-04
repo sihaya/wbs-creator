@@ -36,7 +36,7 @@ public class UserRepository {
             Node userNode = wbs.addNode(user.getUsername());
             userNode.addMixin("mix:referenceable");
             userNode.setProperty("email", user.getEmail());
-            userNode.setProperty("password", user.getPassword().toString());
+            userNode.setProperty("password", new String(user.getPassword()));
 
             session.save();
         } catch (RepositoryException ex) {
@@ -67,7 +67,7 @@ public class UserRepository {
 
     public User authenticate(String username, char[] password) {
         Session session = null;
-        
+                
         try {
             session = SessionUtil.login(repository);
             
@@ -78,7 +78,7 @@ public class UserRepository {
             }
 
             Node userNode = wbs.getNode(username);
-
+            
             if (!Arrays.equals(userNode.getProperty("password").getString().toCharArray(), password)) {
                 throw new IllegalStateException("Incorrect password");
             }
