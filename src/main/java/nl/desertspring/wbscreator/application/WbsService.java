@@ -9,10 +9,6 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import nl.desertspring.wbscreator.domain.*;
-import org.apache.shiro.ShiroException;
-import org.apache.shiro.authz.UnauthorizedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -21,14 +17,14 @@ import org.slf4j.LoggerFactory;
 @Stateless
 @LocalBean
 public class WbsService {
-    private static final Logger logger = LoggerFactory.getLogger(WbsService.class);
-    
+
     private UserRepository userRepository;
     private SheetRepository sheetRepository;
     private TaskRepository taskRepository;
     private ProjectRepository projectRepository;
     private RandomGenerator randomGenerator;
     private SecurityUtil securityUtil;
+    private AuthorizationService authorizationService;
 
     public void createUser(String username, char[] password, String email) {
         User user = new User();
@@ -55,13 +51,13 @@ public class WbsService {
     }
 
     public List<Sheet> findSheetsByProjectId(String projectId) {
-        checkPermission(projectRepository.fetchByProjectId(projectId));
-
+        authorizationService.checkPermissionByProjectId(projectId);
+        
         return sheetRepository.findByProjectId(projectId);
     }
 
     public Sheet fetchSheetDetail(String sheetId) {
-        checkPermission(projectRepository.fetchBySheetId(sheetId));
+        authorizationService.checkPermissionBySheetId(sheetId);
         
         Sheet sheet = sheetRepository.findById(sheetId);
 
@@ -72,6 +68,8 @@ public class WbsService {
     }
 
     public Task createTask(String parentTaskId) {
+        authorizationService.checkPermissionByTaskId(parentTaskId);
+        
         Task task = new Task();
         task.setName("");
         task.setEffort(0);
@@ -82,6 +80,8 @@ public class WbsService {
     }
 
     public void updateTask(String taskId, Integer effort, String name) {
+        authorizationService.checkPermissionByTaskId(taskId);
+        
         Task task = taskRepository.findById(taskId);
 
         task.setEffort(effort);
@@ -91,12 +91,15 @@ public class WbsService {
     }
 
     public void deleteTask(String taskId) {
+        authorizationService.checkPermissionByTaskId(taskId);
+        
         taskRepository.delete(taskId);
     }
 
     public Sheet createSheet(String projectId, String sheetName) {
+        authorizationService.checkPermissionByProjectId(projectId);
+        
         Sheet sheet = new Sheet();
-
         sheet.setName(sheetName);
 
         sheetRepository.save(projectId, sheet);
@@ -108,12 +111,16 @@ public class WbsService {
     }
 
     public void addMemberToProject(String projectId, String username) {
+        authorizationService.checkPermissionByProjectId(projectId);
+        
         String userId = userRepository.getId(username);
 
         projectRepository.addMemberToProject(projectId, userId);
     }
 
     public void grantPublicRead(String sheetId) {
+        authorizationService.checkPermissionBySheetId(sheetId);
+        
         Sheet sheet = sheetRepository.findById(sheetId);
 
         if (sheet.getPublicSecret() != null) {
@@ -126,15 +133,6 @@ public class WbsService {
 
     public Sheet findSheetByPublicSecret(String publicSecret) {
         return sheetRepository.findByPublicSecret(publicSecret);
-    }
-
-    private void checkPermission(Project project) {                
-        String username = securityUtil.getSubjectUsername();
-        
-        if (!project.hasPermission(username)) {
-            logger.warn("User {} does not have access to project with id {}", username, project.getProjectId());
-            throw new UnauthorizedException("User is not authorized to access project");
-        }
     }
 
     @Inject
@@ -166,4 +164,9 @@ public class WbsService {
     public void setSecurityUtil(SecurityUtil securityUtil) {
         this.securityUtil = securityUtil;
     }
+
+    @Inject
+    public void setAuthorizationService(AuthorizationService authorizationService) {
+        this.authorizationService = authorizationService;
+    }    
 }
