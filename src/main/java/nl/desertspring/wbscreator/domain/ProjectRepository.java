@@ -56,6 +56,26 @@ public class ProjectRepository {
             SessionUtil.logout(session);
         }
     }
+    
+    public Project fetchByTaskId(String taskId) {
+        Session session = null;
+        
+        try {
+            session = SessionUtil.login(repository);
+            
+            Node node = session.getNodeByIdentifier(taskId);
+            
+            do {
+                node = node.getParent();
+            } while (!node.hasProperty("projectName"));
+            
+            return createProject(node);
+        } catch (RepositoryException ex) {
+            throw new IllegalStateException(ex);
+        } finally {
+            SessionUtil.logout(session);
+        }
+    }
 
     public List<Project> findProjectByUsername(String username) {
         Session session = null;

@@ -140,7 +140,7 @@ public class ProjectRepositoryTest extends WbsIntegrationTest {
     }
     
     @Test
-    public void given_a_task_id_fetch_by_task_id_returns_project() throws Throwable {
+    public void given_a_sheet_id_fetch_by_sheet_id_returns_project() throws Throwable {
         final String projectName = "42423";
 
         Project project = new Project();
@@ -153,6 +153,22 @@ public class ProjectRepositoryTest extends WbsIntegrationTest {
         
         assertEquals(projectName, actual.getName());
     }
+    
+    @Test
+    public void given_a_task_id_fetch_by_task_id_returns_project() throws Throwable {
+        final String projectName = "42423";
+
+        Project project = new Project();
+        project.setName(projectName);
+
+        projectRepository.save(username, project);
+        String sheetId = createFakeSheetNode(project);
+        String taskId = createFakeTaskNode(sheetId);
+        
+        Project actual = projectRepository.fetchByTaskId(sheetId);
+        
+        assertEquals(projectName, actual.getName());
+    }
 
     private String createFakeSheetNode(Project project) throws RepositoryException {
         Session session = SessionUtil.login(repository);
@@ -162,6 +178,21 @@ public class ProjectRepositoryTest extends WbsIntegrationTest {
             session.save();
             
             return fakeSheetNode.getIdentifier();
+        } finally {
+            SessionUtil.logout(session);
+        }
+    }
+
+    private String createFakeTaskNode(String sheetId) throws RepositoryException {
+        Session session = SessionUtil.login(repository);
+        try {
+            Node node = session.getNodeByIdentifier(sheetId);
+            
+            Node deepTaskNode = node.addNode("task").addNode("task").addNode("task");
+            
+            session.save();
+            
+            return deepTaskNode.getIdentifier();
         } finally {
             SessionUtil.logout(session);
         }

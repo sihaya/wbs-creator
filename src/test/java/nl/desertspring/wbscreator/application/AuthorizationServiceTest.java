@@ -40,39 +40,59 @@ public class AuthorizationServiceTest {
 
     @Test(expected = AuthorizationException.class)
     public void givenAProjectWithoutPermissionCheckPermissionThrowsException() {
-        final String projectId = "423424323242";
-        when(projectRepository.fetchByProjectId(projectId)).thenReturn(project);
-        when(project.hasPermission(username)).thenReturn(false);
-
-        service.checkPermissionByProjectId(projectId);
+        doCheckPermissionByProjectId(false);
     }
-    
+
     @Test
     public void givenAProjectWithPermissionCheckPermissionDoesNotThrowException() {
+
+        doCheckPermissionByProjectId(true);
+    }
+
+    private void doCheckPermissionByProjectId(boolean result) {
         final String projectId = "423424323242";
+
         when(projectRepository.fetchByProjectId(projectId)).thenReturn(project);
-        when(project.hasPermission(username)).thenReturn(true);
+        when(project.hasPermission(username)).thenReturn(result);
 
         service.checkPermissionByProjectId(projectId);
     }
 
     @Test(expected = AuthorizationException.class)
     public void givenASheetWithoutPermissionCheckPermissionThrowsException() {
+        doCheckPermissionBySheetId(false);
+    }
+
+    @Test
+    public void givenASheetWithPermissionCheckPermissionDoesNotThrowException() {
+        doCheckPermissionBySheetId(true);
+    }
+
+    private void doCheckPermissionBySheetId(boolean result) {
         final String sheetId = "423424323242";
 
         when(projectRepository.fetchBySheetId(sheetId)).thenReturn(project);
-        when(project.hasPermission(username)).thenReturn(false);
+        when(project.hasPermission(username)).thenReturn(result);
 
         service.checkPermissionBySheetId(sheetId);
     }
-    
+
+    @Test(expected = AuthorizationException.class)
+    public void givenATaskWithoutPermissionCheckPermissionThrowsException() {
+        doCheckPermissionByTaskId(false);
+    }
+
     @Test
-    public void givenASheetWithPermissionCheckPermissionDoesNotThrowException() {
-        final String sheetId = "423424323242";
+    public void givenATaskWithPermissionCheckPermissionDoesNotThrowException() {
+        doCheckPermissionByTaskId(true);
+    }
 
-        when(projectRepository.fetchBySheetId(sheetId)).thenReturn(project);
-        when(project.hasPermission(username)).thenReturn(true);
+    private void doCheckPermissionByTaskId(boolean result) {
+        final String taskId = "423424323242";
 
-        service.checkPermissionBySheetId(sheetId);
+        when(projectRepository.fetchByTaskId(taskId)).thenReturn(project);
+        when(project.hasPermission(username)).thenReturn(result);
+
+        service.checkPermissionByTaskId(taskId);
     }
 }

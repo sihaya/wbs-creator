@@ -32,8 +32,8 @@ public class AuthorizationService {
         checkPermission(projectRepository.fetchBySheetId(sheetId));
     }
     
-    public void checkPermissionByTaskId(String parentTaskId) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public void checkPermissionByTaskId(String taskId) {
+        checkPermission(projectRepository.fetchByTaskId(taskId));
     }
 
     private void checkPermission(Project project) {
