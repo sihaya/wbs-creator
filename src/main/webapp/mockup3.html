@@ -12,6 +12,7 @@
 	var model;
 	var sheetId;
 	var username;
+	var password;
 	var projectId;
 	
 	var syncUpdateTaskWithServer = function(task) {
@@ -283,9 +284,15 @@
 		
 		$('#login').click(function() {
 			username = $('#username-existing').val();
+			password = $('#password-existing').val();
 			
 			$('#dialog-username').hide();
 			$('#dialog-project').show();
+			
+			$.ajaxSetup({
+				username: username,
+				password: password
+			});
 			
 			showProjects();
 		});
@@ -431,7 +438,7 @@
 	<div class="unit size12">
 	<label>Existing</label>
 	<input type="text" id="username-existing"/>
-	
+	<input type="text" id="password-existing"/>
 		<div><button id="login">Login</button></div>
 	</div>
 	

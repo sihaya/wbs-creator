@@ -19,6 +19,7 @@ public class Project implements Serializable {
     private List<User> members;
     private String name;
     private String projectId;
+    private User owner;
 
     public String getName() {
         return name;
@@ -45,6 +46,10 @@ public class Project implements Serializable {
     }    
     
     public boolean hasPermission(String username) {
+        if (owner.getUsername().equals(username)) {
+            return true;
+        }
+        
         for(User user : members) {
             if (username.equals(user.getUsername())) {
                 return true;
@@ -53,4 +58,12 @@ public class Project implements Serializable {
         
         return false;
     }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
+    public User getOwner() {
+        return owner;
+    }    
 }

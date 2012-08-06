@@ -28,6 +28,7 @@ public class ProjectRepositoryTest extends WbsIntegrationTest {
     private String otherUserId;
     private String otherUsername;
     private Node otherUserNode;
+    private UserFactory userFactory;
 
     @Before
     public void setUp() throws Exception {
@@ -58,6 +59,9 @@ public class ProjectRepositoryTest extends WbsIntegrationTest {
         Session other = SessionUtil.login(repository);
         keepaliveSession.logout();
         keepaliveSession = other;
+
+        userFactory = mock(UserFactory.class);
+        projectRepository.setUserFactory(userFactory);
     }
 
     @Test
@@ -90,15 +94,14 @@ public class ProjectRepositoryTest extends WbsIntegrationTest {
     public void given_a_userid_add_membership_adds_user_to_members() throws RepositoryException {
         final String projectName = "423423";
 
-        UserFactory userFactory = mock(UserFactory.class);
         Project project = new Project();
         project.setName(projectName);
 
         projectRepository.save(username, project);
-        projectRepository.setUserFactory(userFactory);
         projectRepository.addMemberToProject(project.getProjectId(), otherUserId);
 
         ArgumentCaptor<Node> node = ArgumentCaptor.forClass(Node.class);
+                
         User expected = mock(User.class);
         when(userFactory.create(node.capture())).thenReturn(expected);
 
@@ -106,26 +109,26 @@ public class ProjectRepositoryTest extends WbsIntegrationTest {
 
         assertEquals(1, members.size());
         assertEquals(expected, members.get(0));
-        assertEquals(otherUserId, node.getValue().getIdentifier());
+        assertEquals(otherUserId, node.getAllValues().get(0).getIdentifier());
     }
 
     @Test
     public void given_a_username_find_returns_member_projects() {
-        projectRepository.setUserFactory(mock(UserFactory.class));
-        
+
+
         final String projectName = "423423";
 
         Project project = new Project();
         project.setName(projectName);
 
-        projectRepository.save(username, project);        
+        projectRepository.save(username, project);
         projectRepository.addMemberToProject(project.getProjectId(), otherUserId);
-        
+
         List<Project> projects = projectRepository.findProjectByUsername(otherUsername);
-        
-        assertEquals(1, projects.size());        
+
+        assertEquals(1, projects.size());
     }
-    
+
     @Test
     public void given_a_project_id_fetch_by_project_id_returns_project() {
         final String projectName = "42423";
@@ -135,10 +138,10 @@ public class ProjectRepositoryTest extends WbsIntegrationTest {
 
         projectRepository.save(username, project);
         Project actual = projectRepository.fetchByProjectId(project.getProjectId());
-        
+
         assertEquals(projectName, actual.getName());
     }
-    
+
     @Test
     public void given_a_sheet_id_fetch_by_sheet_id_returns_project() throws Throwable {
         final String projectName = "42423";
@@ -148,12 +151,12 @@ public class ProjectRepositoryTest extends WbsIntegrationTest {
 
         projectRepository.save(username, project);
         String sheetId = createFakeSheetNode(project);
-        
+
         Project actual = projectRepository.fetchBySheetId(sheetId);
-        
+
         assertEquals(projectName, actual.getName());
     }
-    
+
     @Test
     public void given_a_task_id_fetch_by_task_id_returns_project() throws Throwable {
         final String projectName = "42423";
@@ -164,9 +167,9 @@ public class ProjectRepositoryTest extends WbsIntegrationTest {
         projectRepository.save(username, project);
         String sheetId = createFakeSheetNode(project);
         String taskId = createFakeTaskNode(sheetId);
-        
+
         Project actual = projectRepository.fetchByTaskId(taskId);
-        
+
         assertEquals(projectName, actual.getName());
     }
 
@@ -176,7 +179,7 @@ public class ProjectRepositoryTest extends WbsIntegrationTest {
             Node node = session.getNodeByIdentifier(project.getProjectId());
             Node fakeSheetNode = node.addNode("sheet");
             session.save();
-            
+
             return fakeSheetNode.getIdentifier();
         } finally {
             SessionUtil.logout(session);
@@ -187,11 +190,11 @@ public class ProjectRepositoryTest extends WbsIntegrationTest {
         Session session = SessionUtil.login(repository);
         try {
             Node node = session.getNodeByIdentifier(sheetId);
-            
+
             Node deepTaskNode = node.addNode("task").addNode("task").addNode("task");
-            
+
             session.save();
-            
+
             return deepTaskNode.getIdentifier();
         } finally {
             SessionUtil.logout(session);

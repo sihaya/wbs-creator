@@ -96,10 +96,8 @@ public class WbsRestService {
     @GET
     @Path("sheet/public/{publicSecret}")
     @Produces("application/json")
-    public Sheet fetchSheetDetailPublic(@PathParam("publicSecret")String publicSecret) {
-        Sheet sheet = wbsService.findSheetByPublicSecret(publicSecret);
-        
-        return wbsService.fetchSheetDetail(sheet.getSheetId());
+    public Sheet fetchSheetDetailPublic(@PathParam("publicSecret")String publicSecret) {        
+        return wbsService.fetchSheetDetailByPublicKey(publicSecret);
     }
     
     @POST

@@ -125,6 +125,9 @@ public class ProjectRepository {
             membersResult.add(userFactory.create(userNode));
         }
         project.setMembers(membersResult);
+        
+        project.setOwner(userFactory.create(projectNode.getParent()));
+        
         return project;
     }
 

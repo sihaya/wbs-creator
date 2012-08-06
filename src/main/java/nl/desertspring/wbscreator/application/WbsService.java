@@ -168,5 +168,14 @@ public class WbsService {
     @Inject
     public void setAuthorizationService(AuthorizationService authorizationService) {
         this.authorizationService = authorizationService;
-    }    
+    }
+
+    public Sheet fetchSheetDetailByPublicKey(String publicSecret) {
+        Sheet sheet = findSheetByPublicSecret(publicSecret);
+        
+        Task root = taskRepository.findRootById(sheet.getSheetId());
+        sheet.setRoot(root);
+        
+        return sheet;
+    }
 }
