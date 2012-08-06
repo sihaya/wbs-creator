@@ -43,4 +43,14 @@ public class Project implements Serializable {
     public void setMembers(List<User> members) {
         this.members = members;
     }    
+    
+    public boolean hasPermission(String username) {
+        for(User user : members) {
+            if (username.equals(user.getUsername())) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
 }

@@ -26,6 +26,36 @@ public class ProjectRepository {
     public void save(String username, Project project) {
         handleSave(username, project);
     }
+    
+    public Project fetchByProjectId(String projectId) {
+        Session session = null;
+        
+        try {
+            session = SessionUtil.login(repository);
+            
+            return createProject(session.getNodeByIdentifier(projectId));
+        } catch(RepositoryException ex) {
+            throw new IllegalStateException(ex);
+        } finally {
+            SessionUtil.logout(session);
+        }
+    }
+    
+    public Project fetchBySheetId(String sheetId) {
+        Session session = null;
+        
+        try {
+            session = SessionUtil.login(repository);
+            
+            Node sheetNode = session.getNodeByIdentifier(sheetId);
+            
+            return createProject(sheetNode.getParent());
+        } catch(RepositoryException ex) {
+            throw new IllegalStateException(ex);
+        } finally {
+            SessionUtil.logout(session);
+        }
+    }
 
     public List<Project> findProjectByUsername(String username) {
         Session session = null;
@@ -65,7 +95,7 @@ public class ProjectRepository {
     private Project createProject(Node projectNode) throws RepositoryException {
         Project project = new Project();
         project.setProjectId(projectNode.getIdentifier());
-        project.setName(projectNode.getProperty("projectName").getName());
+        project.setName(projectNode.getProperty("projectName").getString());
         List<User> membersResult = new ArrayList<User>();
         NodeIterator members = projectNode.getNode("members").getNodes();
         while(members.hasNext()) {

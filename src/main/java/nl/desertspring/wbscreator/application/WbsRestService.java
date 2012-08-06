@@ -58,7 +58,7 @@ public class WbsRestService {
     @Path("user/{username}")
     @Produces("application/json")
     public List<Project> listProjects(@PathParam("username") String username) {
-        return wbsService.findProjectsByUsername(username);
+        return wbsService.findProjectsByCurrentUser();
     }
 
     @POST

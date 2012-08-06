@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import javax.jcr.Node;
 import nl.desertspring.wbscreator.domain.*;
+import org.apache.shiro.ShiroException;
 import org.apache.shiro.subject.Subject;
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -42,11 +43,11 @@ public class WbsServiceTest {
     }
 
     @Test
-    public void givenAProjectNameAndUsernameCreateSavesNewProject() {                
+    public void givenAProjectNameAndUsernameCreateSavesNewProject() {
         WbsService wbsService = new WbsService();
         final String username = "username";
         final String projectName = "projectname";
-        
+
         SecurityUtil securityUtil = mock(SecurityUtil.class);
         when(securityUtil.getSubjectUsername()).thenReturn(username);
 
@@ -66,15 +67,20 @@ public class WbsServiceTest {
     @Test
     public void givenAUsernameListReturnsAllProjects() {
         WbsService wbsService = new WbsService();
+
         final String username = "username";
+
+        SecurityUtil securityUtil = mock(SecurityUtil.class);
+        when(securityUtil.getSubjectUsername()).thenReturn(username);
 
         ProjectRepository projectRepository = mock(ProjectRepository.class);
         wbsService.setProjectRepository(projectRepository);
+        wbsService.setSecurityUtil(securityUtil);
 
         List<Project> expected = Arrays.asList(mock(Project.class));
         when(projectRepository.findProjectByUsername(username)).thenReturn(expected);
 
-        List<Project> actual = wbsService.findProjectsByUsername(username);
+        List<Project> actual = wbsService.findProjectsByCurrentUser();
 
         assertEquals(expected, actual);
     }
@@ -84,16 +90,51 @@ public class WbsServiceTest {
         WbsService wbsService = new WbsService();
 
         final String projectId = "42342";
+        final String username = "username";
+
+        SecurityUtil securityUtil = mock(SecurityUtil.class);
+        when(securityUtil.getSubjectUsername()).thenReturn(username);
 
         SheetRepository sheetRepository = mock(SheetRepository.class);
+        ProjectRepository projectRepository = mock(ProjectRepository.class);
+        Project project = mock(Project.class);
+
         wbsService.setSheetRepository(sheetRepository);
+        wbsService.setProjectRepository(projectRepository);
+        wbsService.setSecurityUtil(securityUtil);
 
         List<Sheet> expected = Arrays.asList(mock(Sheet.class));
         when(sheetRepository.findByProjectId(projectId)).thenReturn(expected);
+        when(projectRepository.fetchByProjectId(projectId)).thenReturn(project);
+
+        when(project.hasPermission(username)).thenReturn(true);
 
         List<Sheet> actual = wbsService.findSheetsByProjectId(projectId);
 
         assertEquals(expected, actual);
+    }
+
+    @Test(expected = ShiroException.class)
+    public void givenAProjectIdToWhichCurrentUserDoesNotHavePermissionListThrowsException() {
+        WbsService wbsService = new WbsService();
+
+        final String projectId = "42342";
+        final String username = "username";
+
+        SecurityUtil securityUtil = mock(SecurityUtil.class);
+        when(securityUtil.getSubjectUsername()).thenReturn(username);
+
+        ProjectRepository projectRepository = mock(ProjectRepository.class);
+        Project project = mock(Project.class);
+        
+        when(projectRepository.fetchByProjectId(projectId)).thenReturn(project);
+
+        wbsService.setSecurityUtil(securityUtil);
+        wbsService.setProjectRepository(projectRepository);
+
+        when(project.hasPermission(username)).thenReturn(false);
+
+        wbsService.findSheetsByProjectId(projectId);
     }
 
     @Test
@@ -101,18 +142,29 @@ public class WbsServiceTest {
         WbsService wbsService = new WbsService();
 
         final String sheetId = "3423423423";
+        final String username = "username";
+
+        SecurityUtil securityUtil = mock(SecurityUtil.class);
+        when(securityUtil.getSubjectUsername()).thenReturn(username);
 
         TaskRepository taskRepository = mock(TaskRepository.class);
         SheetRepository sheetRepository = mock(SheetRepository.class);
+        ProjectRepository projectRepository = mock(ProjectRepository.class);
+        Project project = mock(Project.class);
 
         wbsService.setSheetRepository(sheetRepository);
         wbsService.setTaskRepository(taskRepository);
+        wbsService.setSecurityUtil(securityUtil);
+        wbsService.setProjectRepository(projectRepository);
+
+        when(project.hasPermission(username)).thenReturn(true);
 
         Sheet expected = mock(Sheet.class);
         Task rootExpected = mock(Task.class);
 
         when(sheetRepository.findById(sheetId)).thenReturn(expected);
         when(taskRepository.findRootById(sheetId)).thenReturn(rootExpected);
+        when(projectRepository.fetchBySheetId(sheetId)).thenReturn(project);
 
         Sheet actual = wbsService.fetchSheetDetail(sheetId);
 
@@ -207,59 +259,59 @@ public class WbsServiceTest {
         WbsService wbsService = new WbsService();
         ProjectRepository projectRepository = mock(ProjectRepository.class);
         UserRepository userRepository = mock(UserRepository.class);
-        
+
         wbsService.setProjectRepository(projectRepository);
         wbsService.setUserRepository(userRepository);
-        
+
         final String projectId = "423424";
         final String username = "username";
         final String userId = "423423";
-        
+
         when(userRepository.getId(username)).thenReturn(userId);
-                
+
         wbsService.addMemberToProject(projectId, username);
-        
+
         verify(projectRepository).addMemberToProject(projectId, userId);
     }
-    
+
     @Test
     public void givenASheetIdGrantPublicSetsKey() {
         WbsService wbsService = new WbsService();
-        
+
         final String sheetId = "423422";
         final String publicSecret = "secretkey";
         final RandomGenerator randomGenerator = mock(RandomGenerator.class);
         final SheetRepository sheetRepository = mock(SheetRepository.class);
-        
+
         wbsService.setRandomGenerator(randomGenerator);
         wbsService.setSheetRepository(sheetRepository);
-        
+
         Sheet sheet = new Sheet();
-        
+
         when(randomGenerator.generateSecret()).thenReturn(publicSecret);
         when(sheetRepository.findById(sheetId)).thenReturn(sheet);
-        
+
         wbsService.grantPublicRead(sheetId);
-        
+
         verify(sheetRepository).update(sheet);
-                
+
         assertEquals(publicSecret, sheet.getPublicSecret());
     }
-    
+
     @Test
     public void givenAPublicKeyReturnsSheet() {
         WbsService wbsService = new WbsService();
-        
+
         final String publicSecret = "42342423";
         final SheetRepository sheetRepository = mock(SheetRepository.class);
-        
+
         wbsService.setSheetRepository(sheetRepository);
-        
+
         Sheet sheet = new Sheet();
         when(sheetRepository.findByPublicSecret(publicSecret)).thenReturn(sheet);
-        
+
         Sheet actual = wbsService.findSheetByPublicSecret(publicSecret);
-        
+
         assertEquals(sheet, actual);
     }
 }

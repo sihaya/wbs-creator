@@ -9,6 +9,10 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import nl.desertspring.wbscreator.domain.*;
+import org.apache.shiro.ShiroException;
+import org.apache.shiro.authz.UnauthorizedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -17,7 +21,8 @@ import nl.desertspring.wbscreator.domain.*;
 @Stateless
 @LocalBean
 public class WbsService {
-
+    private static final Logger logger = LoggerFactory.getLogger(WbsService.class);
+    
     private UserRepository userRepository;
     private SheetRepository sheetRepository;
     private TaskRepository taskRepository;
@@ -45,15 +50,19 @@ public class WbsService {
         return project;
     }
 
-    public List<Project> findProjectsByUsername(String username) {
-        return projectRepository.findProjectByUsername(username);
+    public List<Project> findProjectsByCurrentUser() {
+        return projectRepository.findProjectByUsername(securityUtil.getSubjectUsername());
     }
 
     public List<Sheet> findSheetsByProjectId(String projectId) {
+        checkPermission(projectRepository.fetchByProjectId(projectId));
+
         return sheetRepository.findByProjectId(projectId);
     }
 
     public Sheet fetchSheetDetail(String sheetId) {
+        checkPermission(projectRepository.fetchBySheetId(sheetId));
+        
         Sheet sheet = sheetRepository.findById(sheetId);
 
         Task root = taskRepository.findRootById(sheetId);
@@ -106,17 +115,26 @@ public class WbsService {
 
     public void grantPublicRead(String sheetId) {
         Sheet sheet = sheetRepository.findById(sheetId);
-        
+
         if (sheet.getPublicSecret() != null) {
             return;
         }
-        
+
         sheet.setPublicSecret(randomGenerator.generateSecret());
-        sheetRepository.update(sheet);        
+        sheetRepository.update(sheet);
     }
-    
+
     public Sheet findSheetByPublicSecret(String publicSecret) {
         return sheetRepository.findByPublicSecret(publicSecret);
+    }
+
+    private void checkPermission(Project project) {                
+        String username = securityUtil.getSubjectUsername();
+        
+        if (!project.hasPermission(username)) {
+            logger.warn("User {} does not have access to project with id {}", username, project.getProjectId());
+            throw new UnauthorizedException("User is not authorized to access project");
+        }
     }
 
     @Inject

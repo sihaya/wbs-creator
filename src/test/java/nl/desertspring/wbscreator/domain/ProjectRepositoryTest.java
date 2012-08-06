@@ -125,4 +125,45 @@ public class ProjectRepositoryTest extends WbsIntegrationTest {
         
         assertEquals(1, projects.size());        
     }
+    
+    @Test
+    public void given_a_project_id_fetch_by_project_id_returns_project() {
+        final String projectName = "42423";
+
+        Project project = new Project();
+        project.setName(projectName);
+
+        projectRepository.save(username, project);
+        Project actual = projectRepository.fetchByProjectId(project.getProjectId());
+        
+        assertEquals(projectName, actual.getName());
+    }
+    
+    @Test
+    public void given_a_task_id_fetch_by_task_id_returns_project() throws Throwable {
+        final String projectName = "42423";
+
+        Project project = new Project();
+        project.setName(projectName);
+
+        projectRepository.save(username, project);
+        String sheetId = createFakeSheetNode(project);
+        
+        Project actual = projectRepository.fetchBySheetId(sheetId);
+        
+        assertEquals(projectName, actual.getName());
+    }
+
+    private String createFakeSheetNode(Project project) throws RepositoryException {
+        Session session = SessionUtil.login(repository);
+        try {
+            Node node = session.getNodeByIdentifier(project.getProjectId());
+            Node fakeSheetNode = node.addNode("sheet");
+            session.save();
+            
+            return fakeSheetNode.getIdentifier();
+        } finally {
+            SessionUtil.logout(session);
+        }
+    }
 }
