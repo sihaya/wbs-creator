@@ -165,7 +165,7 @@ public class ProjectRepositoryTest extends WbsIntegrationTest {
         String sheetId = createFakeSheetNode(project);
         String taskId = createFakeTaskNode(sheetId);
         
-        Project actual = projectRepository.fetchByTaskId(sheetId);
+        Project actual = projectRepository.fetchByTaskId(taskId);
         
         assertEquals(projectName, actual.getName());
     }
