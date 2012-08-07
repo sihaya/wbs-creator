@@ -15,14 +15,16 @@ import nl.desertspring.wbscreator.domain.UserRepository;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.mgt.SessionStorageEvaluator;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.Subject;
 
 /**
  *
  * @author sihaya
  */
-public class WbsRealm extends AuthorizingRealm {    
+public class WbsRealm extends AuthorizingRealm implements SessionStorageEvaluator {    
     private UserRepository userRepository;
     
     private static final Set<String> roles = Collections.singleton("user");
@@ -57,5 +59,10 @@ public class WbsRealm extends AuthorizingRealm {
             Logger.getLogger(WbsRealm.class.getName()).log(Level.SEVERE, null, ex);
             throw new IllegalStateException(ex);
         }
+    }
+
+    @Override
+    public boolean isSessionStorageEnabled(Subject subject) {
+        return false;
     }
 }
