@@ -1,493 +1,539 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="reset.css"/>
+        <link rel="stylesheet" type="text/css" href="style.css"/>
 
-<link rel="stylesheet" type="text/css" href="reset.css"/>
-<link rel="stylesheet" type="text/css" href="style.css"/>
+        <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+        <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
 
-<script type="text/javascript" src="jquery.min.js"></script>
 
-<script type="text/javascript" src="host-vars.js.jsp"></script>
+        <script type="text/javascript" src="jquery.min.js"></script>
 
-<script type="text/javascript">
-	var model;
-	var sheetId;
-	var username;
-	var password;
-	var projectId;
+        <script type="text/javascript" src="host-vars.js.jsp"></script>
+
+        <script type="text/javascript">
+            var model;
+            var sheetId;
+            var username;
+            var password;
+            var projectId;
 	
-	var syncUpdateTaskWithServer = function(task) {
-		$.ajax({type: 'PUT', url: host + 'task',
-			data: {'taskId': task.taskId, effort: task.effort, name: task.name}});
-	}
+            var syncUpdateTaskWithServer = function(task) {
+                $.ajax({type: 'PUT', url: host + 'task',
+                    data: {'taskId': task.taskId, effort: task.effort, name: task.name}});
+            }
 	
-	var syncNewTaskWithServer = function(parentTask, newTask) {
-			$.ajax({type: 'POST', url: host + 'task',
-				data: {'parentTaskId': parentTask.taskId} }).complete(function(xhr, data) {
-					var response = xhr.getResponseHeader('location');
-					var last = response.split('\/');
+            var syncNewTaskWithServer = function(parentTask, newTask) {
+                $.ajax({type: 'POST', url: host + 'task',
+                    data: {'parentTaskId': parentTask.taskId} }).complete(function(xhr, data) {
+                    var response = xhr.getResponseHeader('location');
+                    var last = response.split('\/');
 					
-					newTask.taskId = last[last.length - 1];
-				});			
-	}
+                    newTask.taskId = last[last.length - 1];
+                });			
+            }
 	
-	var syncDeleteTaskWithServer = function(taskId) {
-		$.ajax({type: 'DELETE', url: host + 'task',
-			data: {'taskId': taskId}});
-	}
+            var syncDeleteTaskWithServer = function(taskId) {
+                $.ajax({type: 'DELETE', url: host + 'task',
+                    data: {'taskId': taskId}});
+            }
 	
-	var createTaskDetail = function(taskDetail, level, addSibblingFunction, addChildFunction, deleteTaskFunction) {
-		var template = 
-			'<div class="task-detail">' +
-				'<button class="done">OK</button>' + 
-				'<div class="trunk-mask"></div>' +
-				'<div class="mask-right"></div>' +
-				'<div class="add-sibbling">+</div>' +
-				'<div class="add-child">+</div>' + 
-				'<div class="del-task">-</div>';			
+            var createTaskDetail = function(taskDetail, level, addSibblingFunction, addChildFunction, deleteTaskFunction) {
+                var template = 
+                    '<div class="task-detail">' +
+                    '<button class="done">OK</button>' + 
+                    '<div class="trunk-mask"></div>' +
+                    '<div class="mask-right"></div>' +
+                    '<div class="add-sibbling">+</div>' +
+                    '<div class="add-child">+</div>' + 
+                    '<div class="del-task">-</div>';			
 			
-			if (level > 2) {
-				template = template + 
-					'	<div class="line"></div>';
-			} else if (level == 1) {
-				template = template + 
-					'	<div class="bottomline"></div>';
-			} else if (level == 2) {
-				template = template +
-					'<div class="topline"></div>';
-			}			
+                if (level > 2) {
+                    template = template + 
+                        '	<div class="line"></div>';
+                } else if (level == 1) {
+                    template = template + 
+                        '	<div class="bottomline"></div>';
+                } else if (level == 2) {
+                    template = template +
+                        '<div class="topline"></div>';
+                }			
 			
-			template = template + 
-			'	<div class="name"><input type="text"></input><span></span></div>' + 
-			' <div class="effort"><input type="text"></input><span></span></div>' + 
-			'	<div class="number"></div>' +
-			'</div>';
+                template = template + 
+                    '	<div class="name"><input type="text"></input><span></span></div>' + 
+                    ' <div class="effort"><input type="text"></input><span></span></div>' + 
+                    '	<div class="number"></div>' +
+                    '</div>';
 		
-		template = $(template);
+                template = $(template);
 		
-		$('div.add-sibbling', template).click(function() {
-			addSibblingFunction();
-			draw();
-		});
-		$('div.add-child', template).click(function() {
-			addChildFunction();
-			draw();
-		});
-		$('div.del-task', template).click(function() {
-			deleteTaskFunction();
+                $('div.add-sibbling', template).click(function() {
+                    addSibblingFunction();
+                    draw();
+                });
+                $('div.add-child', template).click(function() {
+                    addChildFunction();
+                    draw();
+                });
+                $('div.del-task', template).click(function() {
+                    deleteTaskFunction();
 			
-			syncDeleteTaskWithServer(taskDetail.taskId);
+                    syncDeleteTaskWithServer(taskDetail.taskId);
 			
-			draw();
-		});
+                    draw();
+                });
 		
-		$('.name span', template).html(taskDetail.name);
-  	$('.effort span', template).html(taskDetail.effort);
-		$('.number', template).html(taskDetail.number);
+                $('.name span', template).html(taskDetail.name);
+                $('.effort span', template).html(taskDetail.effort);
+                $('.number', template).html(taskDetail.number);
 		
-		$(template).click(function() {
-			if($(template).hasClass('editing')) {
-				return;
-			}
+                $(template).click(function() {
+                    if($(template).hasClass('editing')) {
+                        return;
+                    }
 		
-			$(template).addClass('editing');
+                    $(template).addClass('editing');
 			
-			$('.effort input', template).val(taskDetail.effort);			
-			$('.name input', template).val(taskDetail.name);			
-		});
+                    $('.effort input', template).val(taskDetail.effort);			
+                    $('.name input', template).val(taskDetail.name);			
+                });
 		
-		$('button', template).click(function() {
-			taskDetail.effort = parseInt($('.effort input', template).val());
-			taskDetail.name = $('.name input', template).val();
+                $('button', template).click(function() {
+                    taskDetail.effort = parseInt($('.effort input', template).val());
+                    taskDetail.name = $('.name input', template).val();
 			
-			syncUpdateTaskWithServer(taskDetail);
+                    syncUpdateTaskWithServer(taskDetail);
 			
-			draw();
-		});
+                    draw();
+                });
 		
-		return template;
-	};
+                return template;
+            };
 	
-	var createSubTask = function(subTask, last, sibblings, parent) {
-		var i;
-		var template = '<div class="task subtask">' +
-			'<div class="trunk">' +
-			'<div class="trunk-erase">' +
-			'</div>' +			
-			'<div class="trunk-outer-erase"></div>' +     
-		'</div>';
+            var createSubTask = function(subTask, last, sibblings, parent) {
+                var i;
+                var template = '<div class="task subtask">' +
+                    '<div class="trunk">' +
+                    '<div class="trunk-erase">' +
+                    '</div>' +			
+                    '<div class="trunk-outer-erase"></div>' +     
+                    '</div>';
 				
-		var result = $(template);
-		result.prepend(createTaskDetail(subTask, 2, null, function() {
-			var task = {
-						name: 'website',
-						effort: '0'
-			};
+                var result = $(template);
+                result.prepend(createTaskDetail(subTask, 2, null, function() {
+                    var task = {
+                        name: 'website',
+                        effort: '0'
+                    };
 			
-			syncNewTaskWithServer(subTask, task);
+                    syncNewTaskWithServer(subTask, task);
 		
-			if (!subTask.subTasks) {
-				subTask.subTasks = [];				
-			}
+                    if (!subTask.subTasks) {
+                        subTask.subTasks = [];				
+                    }
 			
-			subTask.subTasks.push(task);
+                    subTask.subTasks.push(task);
 			
-			draw();
-		},
-			function() {
-				var idx = sibblings.indexOf(subTask);
-				sibblings.splice(idx, idx);
+                    draw();
+                },
+                function() {
+                    var idx = sibblings.indexOf(subTask);
+                    sibblings.splice(idx, idx);
 			
-			}));
+                }));
 		
-		if (last) {
-			$(result).addClass('last-task');
-		}
+                if (last) {
+                    $(result).addClass('last-task');
+                }
 		
-		for(i in subTask.subTasks) {
-			$('> .trunk', result).append(createSubSubTask(subTask.subTasks[i], subTask.subTasks, subTask));
-		}
+                for(i in subTask.subTasks) {
+                    $('> .trunk', result).append(createSubSubTask(subTask.subTasks[i], subTask.subTasks, subTask));
+                }
 		
-		if (!subTask.subTasks || subTask.subTasks.length == 0) {
-			$('.trunk', result).hide();
-		}
+                if (!subTask.subTasks || subTask.subTasks.length == 0) {
+                    $('.trunk', result).hide();
+                }
 			
-		return result;
-	}
+                return result;
+            }
 	
-	var createSubSubTask = function(subSubTask, sibblings, parent) {
-		var template = '<div class="task subsubtask">' +
-			'</div>';
+            var createSubSubTask = function(subSubTask, sibblings, parent) {
+                var template = '<div class="task subsubtask">' +
+                    '</div>';
 			
-		template = $(template);
+                template = $(template);
 		
-		if (sibblings[sibblings.length - 1] === subSubTask) {
-			template.addClass("task-last");
-		}
+                if (sibblings[sibblings.length - 1] === subSubTask) {
+                    template.addClass("task-last");
+                }
 		
-		template.append(createTaskDetail(subSubTask, 3, function() {
-				var task = {
-					name: '',
-					effort: '0'
-				};
-				sibblings.push(task);
+                template.append(createTaskDetail(subSubTask, 3, function() {
+                    var task = {
+                        name: '',
+                        effort: '0'
+                    };
+                    sibblings.push(task);
 				
-				syncNewTaskWithServer(parent, task);
+                    syncNewTaskWithServer(parent, task);
 					
-					draw();
-			}, function() {
-				var task = {
-							name: '',
-							effort: '0'
-				}
+                    draw();
+                }, function() {
+                    var task = {
+                        name: '',
+                        effort: '0'
+                    }
 			
-				if (!subSubTask.subTasks) {
-					subSubTask.subTasks = [];
-				}
+                    if (!subSubTask.subTasks) {
+                        subSubTask.subTasks = [];
+                    }
 				
-				subSubTask.subTasks.push(task);
+                    subSubTask.subTasks.push(task);
 				
-				syncNewTaskWithServer(subSubTask, task);
+                    syncNewTaskWithServer(subSubTask, task);
 				
-				draw();
+                    draw();
 				
-			}, function() {
-				var j = sibblings.indexOf(subSubTask);
+                }, function() {
+                    var j = sibblings.indexOf(subSubTask);
 				
-				sibblings.splice(j, 1);							
-			}));
+                    sibblings.splice(j, 1);							
+                }));
 			
-			if (subSubTask.subTasks && subSubTask.subTasks.length > 0) {		
-				template.append($(
-					'<div class="trunk">' +
-  	      	'<div class="trunk-erase"></div>' + 
-  	      	'<div class="trunk-outer-erase"></div>' +                                 
-  	      '</div>'));
+                if (subSubTask.subTasks && subSubTask.subTasks.length > 0) {		
+                    template.append($(
+                    '<div class="trunk">' +
+                        '<div class="trunk-erase"></div>' + 
+                        '<div class="trunk-outer-erase"></div>' +                                 
+                        '</div>'));
   	      
-  	    var i;
-  	    for(i in subSubTask.subTasks) {
-  	    	$('> .trunk', template).append(createSubSubTask(subSubTask.subTasks[i], subSubTask.subTasks, subSubTask));
-  	    }
-			}
+                    var i;
+                    for(i in subSubTask.subTasks) {
+                        $('> .trunk', template).append(createSubSubTask(subSubTask.subTasks[i], subSubTask.subTasks, subSubTask));
+                    }
+                }
 			
-		 return template;
-	}
+                return template;
+            }
 	
-	var calcTotals = function(task) {
-		var total = 0;
-		var i;
+            var calcTotals = function(task) {
+                var total = 0;
+                var i;
 		
-		if (task.subTasks && task.subTasks.length != 0) {
-			for (i in task.subTasks) {
-				total += calcTotals(task.subTasks[i]);
-			}
-		} else {
-			total = parseInt(task.effort);
-		}
+                if (task.subTasks && task.subTasks.length != 0) {
+                    for (i in task.subTasks) {
+                        total += calcTotals(task.subTasks[i]);
+                    }
+                } else {
+                    total = parseInt(task.effort);
+                }
 		
-		task.effort = total;
+                task.effort = total;
 		
-		return total;
-	}
+                return total;
+            }
 	
-	var calcLabel = function(task, prefix) {
-		task.number = prefix;
-		var i;
+            var calcLabel = function(task, prefix) {
+                task.number = prefix;
+                var i;
 		
-		if (task.subTasks) {
-			for(i = 0; i < task.subTasks.length; i++) {
-				calcLabel(task.subTasks[i], prefix + "." + (i + 1));			
-			}
-		}
-	}
+                if (task.subTasks) {
+                    for(i = 0; i < task.subTasks.length; i++) {
+                        calcLabel(task.subTasks[i], prefix + "." + (i + 1));			
+                    }
+                }
+            }
 	
-	var draw = function() {
-		var i;
+            var draw = function() {
+                var i;
 		
-		calcTotals(model);
-		calcLabel(model, "1");
+                calcTotals(model);
+                calcLabel(model, "1");
 		
-		$('.root').html('');
+                $('.root').html('');
 		
-		$('.root').append($('<div class="vertical-line">' +
-      	'<div class="mask-left"></div>' +
-      '</div>'));
+                $('.root').append($('<div class="vertical-line">' +
+                    '<div class="mask-left"></div>' +
+                    '</div>'));
 	
-		$('.root').prepend(createTaskDetail(model, 1, null, function() {
-					var task = { 
-							name: '',
-							effort: '0'
-					};
+                $('.root').prepend(createTaskDetail(model, 1, null, function() {
+                    var task = { 
+                        name: '',
+                        effort: '0'
+                    };
 					
-					syncNewTaskWithServer(model, task);
+                    syncNewTaskWithServer(model, task);
 		
-					model.subTasks.push(task);
+                    model.subTasks.push(task);
 					
-					draw();
-		}));
+                    draw();
+                }));
 		
-		for(i in model.subTasks) {		
+                for(i in model.subTasks) {		
 		
-			$('.root').append(createSubTask(model.subTasks[i], i == model.subTasks.length - 1, model.subTasks, model));
-		}
-	};
+                    $('.root').append(createSubTask(model.subTasks[i], i == model.subTasks.length - 1, model.subTasks, model));
+                }
+            };
 	
-	$(document).ready(function() {
-		$('#dialog-username').show();	
+            $(document).ready(function() {
+                $('#dialog-username').modal({backdrop: 'static'});	
 		
-		$('#register').click(function() {
-			$.ajax({type: 'POST', url: host + 'user',
-				data: {'username': $('#username').val(), 'password': $('#password').val(), email: $('#password').val()}}).success(
-					function() {
-						username = $('username');							
-					});			
-		});
+                $('#register').click(function(e) {
+                    $.ajax({type: 'POST', url: host + 'user',
+                        data: {'username': $('#username').val(), 'password': $('#password').val(), email: $('#password').val()}}).success(
+                    function() {
+                        username = $('username');							
+                                                
+                    });			
+                    
+                    e.preventDefault();
+                });
 		
-		$('#login').click(function() {
-			username = $('#username-existing').val();
-			password = $('#password-existing').val();
+                $('#login').click(function(e) {
+                    username = $('#username-existing').val();
+                    password = $('#password-existing').val();
 			
-			$('#dialog-username').hide();
-			$('#dialog-project').show();
+                    $('#dialog-username').modal('hide');
+                    $('#dialog-project').show();
 			
-			$.ajaxSetup({
-				username: username,
-				password: password
-			});
+                    $.ajaxSetup({
+                        username: username,
+                        password: password
+                    });	
 			
-			showProjects();
-		});
+                    showProjects();
+                    
+                    e.preventDefault();
+                });
 		
-		$('#create-project').click(function() {
-			$.ajax({type: 'POST', url: host + 'project',
-				data: {'username': username, 'projectName': $('#project-name').val() }
-		}).success(showProjects);
-		});
+                $('#create-project').click(function() {
+                    $.ajax({type: 'POST', url: host + 'project',
+                        data: {'username': username, 'projectName': $('#project-name').val() }
+                    }).success(showProjects);
+                });
 		
-		$('#create-sheet').click(function() {
-			$.ajax({type: 'POST', url: host + 'sheet',
-				data: {'sheetName': $('#sheet-name').val(), 'projectId': projectId }
-		}).success(showSheets);
+                $('#create-sheet').click(function() {
+                    $.ajax({type: 'POST', url: host + 'sheet',
+                        data: {'sheetName': $('#sheet-name').val(), 'projectId': projectId }
+                    }).success(showSheets);
 		
-		});
+                });
 		
-		var showProjects = function() {
-				$.ajax({type: 'GET', url: host + 'user/' + username}).success(function(data) {
-					$('#list-projects tbody').html('');
-					$.each(data, function(i, project) {
-						var template = '<tr><td class="link"></td></tr>';
-						template = $(template);
-						$('.link', template).html(project.name);
-						$('.link', template).click(function() {
-							projectId = project.projectId;
+                var showProjects = function() {
+                    $.ajax({type: 'GET', url: host + 'user/' + username}).success(function(data) {
+                        $('#list-projects tbody').html('');
+                        $.each(data, function(i, project) {
+                            var template = '<tr><td class="link"></td></tr>';
+                            template = $(template);
+                            $('.link', template).html(project.name);
+                            $('.link', template).click(function() {
+                                projectId = project.projectId;
 
-							$('#dialog-project').hide();
-							$('#dialog-sheet').show();
+                                $('#dialog-project').hide();
+                                $('#dialog-sheet').show();
 														
-							showSheets();						
-							updateMembers(project);
-						});
-						$('#list-projects tbody').append(template);
-				}); 
-			});
-		};
+                                showSheets();						
+                                updateMembers(project);
+                            });
+                            $('#list-projects tbody').append(template);
+                        }); 
+                    });
+                };
 		
-		var showSheets = function() {
-			$('#dialog-members').show();
+                var showSheets = function() {
+                    $('#dialog-members').show();
 						
-			$.ajax({type: 'GET', url: host + 'project/' + projectId}).success(function(data) {
-					$('#list-sheets tbody').html('');
+                    $.ajax({type: 'GET', url: host + 'project/' + projectId}).success(function(data) {
+                        $('#list-sheets tbody').html('');
 				
-					$.each(data, function(i, sheet) {
-						var template = '<tr><td class="link"></td></tr>';
-						template = $(template);
-						$('.link', template).html(sheet.name);
-						$('.link', template).click(function() {
-							sheetId = sheet.sheetId;
+                        $.each(data, function(i, sheet) {
+                            var template = '<tr><td class="link"></td></tr>';
+                            template = $(template);
+                            $('.link', template).html(sheet.name);
+                            $('.link', template).click(function() {
+                                sheetId = sheet.sheetId;
 							
-							$('#dialog-sheet').hide();
-							$('.dialog').hide();
-							getTaskModel();
-							$('#dialog-share').show();
-						});
-						$('#list-sheets tbody').append(template);
-				}); 
-		});
-		};
+                                $('#dialog-sheet').hide();
+                                $('.dialog').hide();
+                                getTaskModel();
+                                $('#dialog-share').show();
+                            });
+                            $('#list-sheets tbody').append(template);
+                        }); 
+                    });
+                };
 		
-		$('#generate-share').click(function() {
-		$.ajax({url: host + "sheet/public", type: 'POST', data: { 'sheetId': sheetId }}).complete(function(xhr, data) {
-					var response = xhr.getResponseHeader('location');
-					var last = response.split('\/');
-					last = last[last.length - 1];
+                $('#generate-share').click(function() {
+                    $.ajax({url: host + "sheet/public", type: 'POST', data: { 'sheetId': sheetId }}).complete(function(xhr, data) {
+                        var response = xhr.getResponseHeader('location');
+                        var last = response.split('\/');
+                        last = last[last.length - 1];
 					
-					$('#publicUrl').val(window.location + "#publicSecret=" + last);
-		});
-	});
+                        $('#publicUrl').val(window.location + "#publicSecret=" + last);
+                    });
+                });
 	
-		var url = window.location.toString();
+                var url = window.location.toString();
 	
-		var idx = url.indexOf('publicSecret');
+                var idx = url.indexOf('publicSecret');
 
-		if (idx != -1) {
-			var publicSecret = url.substring(idx).replace("publicSecret=", "");
+                if (idx != -1) {
+                    var publicSecret = url.substring(idx).replace("publicSecret=", "");
 
 								
-			$.ajax({url: host + 'sheet/public/' + publicSecret}).done(function(data) {
-				model = data.root;
+                    $.ajax({url: host + 'sheet/public/' + publicSecret}).done(function(data) {
+                        model = data.root;
 				
-				$('.dialog').hide();
-				draw();
+                        $('.dialog').hide();
+                        draw();
 				
 				
-			});
-		}
+                    });
+                }
 		
 	
-	});
+            });
 	
 	
-	var updateMembers = function(sheet) {
-		$('#dialog-members tbody').html('');
+            var updateMembers = function(sheet) {
+                $('#dialog-members tbody').html('');
 		
-		$('#add-member').click(function() {
+                $('#add-member').click(function() {
 
-			$.ajax({url: host + 'project/' + projectId + '/members/' + $('#member-username').val(),
-				type: 'POST'});
-		});
+                    $.ajax({url: host + 'project/' + projectId + '/members/' + $('#member-username').val(),
+                        type: 'POST'});
+                });
 		
-		if (!sheet.members) {
-			return;
-		}
+                if (!sheet.members) {
+                    return;
+                }
 		
-		$.each(sheet.members, function(i, member) {
-			var template = '<tr><td class="username"></td></tr>';
-			template = $(template);
+                $.each(sheet.members, function(i, member) {
+                    var template = '<tr><td class="username"></td></tr>';
+                    template = $(template);
 			
-			$('.username', template).html(member.username);			
-			$('#dialog-members tbody').append(template);			
-		});		
-	}
+                    $('.username', template).html(member.username);			
+                    $('#dialog-members tbody').append(template);			
+                });		
+            }
 		
-	var getTaskModel = function() {		
+            var getTaskModel = function() {		
 		
 	
-		$.ajax({url: host + 'sheet/' + sheetId})
-			.done(function(data) {
-				model = data.root;
+                $.ajax({url: host + 'sheet/' + sheetId})
+                .done(function(data) {
+                    model = data.root;
 				
-				draw();
-			});
-		}
-</script>
+                    draw();
+                });
+            }
+        </script>
 
-<body>
-<div class="dialog" id="dialog-username">
-	<div class="unit size12">
-	<label>Username</label>
-	<input type="text" id="username"/>
+        <title>WBS Creator</title>
+    </head>        
+    <body>
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <span class="brand" href="#">WBS Creator</span>
+                    <div class="nav-collapse">
+                        <ul class="nav">
+                            <li class="active"><a href="#">Home</a></li>
+                            <li><a href="#about">About</a></li>
+                            <li><a href="#contact">Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-	<label>Email</label>
-	<input type="text" id="email"/>
+        <div class="container">
+            <div class="modal hide" id="dialog-username">
+						  <div class="modal-body">
+            	<h3>Create a new account or login to your existing account</h3>
+            	<div class="row-fluid">
+            		
+                <div class="span5">                		
+                		<form class="well">
+	                		<h4>New account</h4>
+		                  <label>Username</label>
+		                  <input type="text" id="username"/>
 
-	<label>Password</label>
-	<input type="text" id="password"/>
-	
-	<div><button id="register">Register</button></div>
-	</div>
-	
-	<div class="unit size12">
-	<label>Existing</label>
-	<input type="text" id="username-existing"/>
-	<input type="text" id="password-existing"/>
-		<div><button id="login">Login</button></div>
-	</div>
-	
-</div>
+		                  <label>Email</label>
+		                  <input type="text" id="email"/>
 
-<div class="dialog" id="dialog-sheet">
+		                  <label>Password</label>
+		                  <input type="password" id="password"/>
 
-	<table id="list-sheets">
-		<tr><td>Name</td></tr>
-	</table>
+		                  <div><button id="register" class="btn">Register</button></div>
+                    </form>
+                </div>
 
-	<label>Sheet</label>
-	<input type="text" id="sheet-name"/>
-	
-	<div><button id="create-sheet">Create sheet</button></div>
-</div>
+                <div class="span5">
+                		<form class="well">
+		              		<h4>Existing account</h4>
+		                  <label>Username</label>
+		                  <input type="text" id="username-existing"/>
+ 		                  <label>Password</label>
+		                  <input type="password" id="password-existing"/>
+		                  <div><button id="login" class="btn">Login</button></div>
+                    </form>
+                </div>
+                </div>
+                </div>
+            </div>
 
-<div class="dialog" id="dialog-project">
-	<table id="list-projects">
-		<tr><td>Name</td></tr>
-	</table>
+            <div class="dialog" id="dialog-sheet">
 
-	<label>Project</label>
-	<input type="text" id="project-name"/>
-	
-	<div><button id="create-project">Create project</button></div>
-</div>
+                <table id="list-sheets">
+                    <tr><td>Name</td></tr>
+                </table>
 
-<div class="dialog" id="dialog-members">
-	<table id="list-members">
-		<tr><td>Name</td></tr>
-	</table>
-	
-	<label>Username</label>
-	<input type="text" id="member-username"/>
+                <label>Sheet</label>
+                <input type="text" id="sheet-name"/>
 
-	<div><button id="add-member">Add member</button></div>	
-</div>
+                <div><button id="create-sheet">Create sheet</button></div>
+            </div>
 
-<div class="dialog" id="dialog-share">
-	<button id="generate-share">Share this sheet</button>
-	<textarea id="publicUrl"></textarea>
-</div>
+            <div class="dialog" id="dialog-project">
+                <table id="list-projects">
+                    <tr><td>Name</td></tr>
+                </table>
 
-<div class="inner">
-	<div class="root">
-			
-	</div>
-</div>
+                <label>Project</label>
+                <input type="text" id="project-name"/>
 
-</body>
+                <div><button id="create-project">Create project</button></div>
+            </div>
+
+            <div class="dialog" id="dialog-members">
+                <table id="list-members">
+                    <tr><td>Name</td></tr>
+                </table>
+
+                <label>Username</label>
+                <input type="text" id="member-username"/>
+
+                <div><button id="add-member">Add member</button></div>	
+            </div>
+
+            <div class="dialog" id="dialog-share">
+                <button id="generate-share">Share this sheet</button>
+                <textarea id="publicUrl"></textarea>
+            </div>
+
+            <div class="inner">
+                <div class="root">
+
+                </div>
+            </div>
+        </div>
+        
+            <script src="bootstrap/js/bootstrap.js"></script>
+    </body>
 </html>

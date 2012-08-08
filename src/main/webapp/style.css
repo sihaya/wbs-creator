@@ -198,11 +198,11 @@ div.subsubtask > div.task-detail {
 }
 
 html, body, div.inner {
-	width: 100%;
 }
 
 div.inner { 
-	
+	padding-top: 50px;
+	width: 6000px;
 }
 
 div.root {
@@ -267,6 +267,10 @@ label {
 	left: 50px;
 }
 
+#dialog-username {
+	width: 800px;
+}
+
 #dialog-share {
 		background-color: grey;
     display: none;
@@ -274,6 +278,6 @@ label {
     position: absolute;
     right: 0;
     left: auto;
-    top: 0;
+    top: 50px;
     width: 180px;
 }
