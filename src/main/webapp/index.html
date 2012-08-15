@@ -18,6 +18,7 @@
             var username;
             var password;
             var projectId;
+            var sheets;
 	
             var syncUpdateTaskWithServer = function(task) {
                 $.ajax({type: 'PUT', url: host + 'task',
@@ -274,9 +275,19 @@
                     $('.root').append(createSubTask(model.subTasks[i], i == model.subTasks.length - 1, model.subTasks, model));
                 }
             };
-	
+            
             $(document).ready(function() {
-                $('#dialog-username').modal({backdrop: 'static'});	
+                $('#sheets-dropdown').dropdown();
+            });
+            
+            
+            $(document).ready(function() {
+                
+                
+                $('#home').click(function() {
+                    $('.dialog, .hide').hide();
+                    $('#dialog-username').modal({backdrop: 'static'});	
+                });
 		
                 $('#register').click(function(e) {
                     $.ajax({type: 'POST', url: host + 'user',
@@ -318,6 +329,11 @@
                     }).success(showSheets);
 		
                 });
+                
+                $('#projects').click(function() {
+                    $('.dialog').hide();
+                    $('#dialog-project').show();
+                });
 		
                 var showProjects = function() {
                     $.ajax({type: 'GET', url: host + 'user/' + username}).success(function(data) {
@@ -341,6 +357,8 @@
                 };
 		
                 var showSheets = function() {
+                		
+                		
                     $('#dialog-members').show();
 						
                     $.ajax({type: 'GET', url: host + 'project/' + projectId}).success(function(data) {
@@ -351,15 +369,14 @@
                             template = $(template);
                             $('.link', template).html(sheet.name);
                             $('.link', template).click(function() {
-                                sheetId = sheet.sheetId;
-							
-                                $('#dialog-sheet').hide();
-                                $('.dialog').hide();
-                                getTaskModel();
-                                $('#dialog-share').show();
+                                showSheet(sheet);
                             });
                             $('#list-sheets tbody').append(template);
                         }); 
+                        
+                        sheets = data;
+                        
+                        updateSheetsDropdown();
                     });
                 };
 		
@@ -389,11 +406,20 @@
 				
 				
                     });
+                } else {
+                    $('#dialog-username').modal({backdrop: 'static'});	
                 }
-		
 	
             });
-	
+            
+            var showSheet = function(sheet) {
+                sheetId = sheet.sheetId;
+							
+                $('#dialog-sheet').hide();
+                $('.dialog').hide();
+                getTaskModel();
+                $('#dialog-share').show();
+            }
 	
             var updateMembers = function(sheet) {
                 $('#dialog-members tbody').html('');
@@ -416,10 +442,29 @@
                     $('#dialog-members tbody').append(template);			
                 });		
             }
+            
+            var updateSheetsDropdown = function() {       
+
+                var template = '<li><a href="#" class="link">Action</a></li>', sheetItem;
+            	
+                $('#sheets-dropdown + ul li').remove();
+            	
+                if (sheets) {
+                    $.each(sheets, function(i, elem) {
+                        sheetItem = $(template);
+            			
+                        $('.link', sheetItem).click(function() {
+                            showSheet(elem);
+                        });
+            			
+                        $('.link', sheetItem).html(elem.name);
+            			
+                        $('#sheets-dropdown + ul').append(sheetItem);
+                    });
+                }
+            }
 		
-            var getTaskModel = function() {		
-		
-	
+            var getTaskModel = function() {		            		
                 $.ajax({url: host + 'sheet/' + sheetId})
                 .done(function(data) {
                     model = data.root;
@@ -440,12 +485,19 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </a>
-                    <span class="brand" href="#">WBS Creator</span>
+                    <span class="brand">WBS Creator</span>
                     <div class="nav-collapse">
                         <ul class="nav">
-                            <li class="active"><a href="#">Home</a></li>
-                            <li><a href="#about">About</a></li>
-                            <li><a href="#contact">Contact</a></li>
+                            <li class="active"><a id="home" href="#">Home</a></li>
+                            <li>
+                                <a href="#" id="projects">Projects</a>                            
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" id="sheets-dropdown" class="dropdown-toggle">Sheets<b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">Action</a></li>
+                                </ul>                            	
+                            </li>                             
                         </ul>
                     </div>
                 </div>
@@ -454,64 +506,85 @@
 
         <div class="container">
             <div class="modal hide" id="dialog-username">
-						  <div class="modal-body">
-            	<h3>Create a new account or login to your existing account</h3>
-            	<div class="row-fluid">
-            		
-                <div class="span5">                		
-                		<form class="well">
-	                		<h4>New account</h4>
-		                  <label>Username</label>
-		                  <input type="text" id="username"/>
+                <div class="modal-body">
+                    <h3>Create a new account or login to your existing account</h3>
+                    <div class="row-fluid">
 
-		                  <label>Email</label>
-		                  <input type="text" id="email"/>
+                        <div class="span5">                		
+                            <form class="well">
+                                <h4>New account</h4>
+                                <label>Username</label>
+                                <input type="text" id="username"/>
 
-		                  <label>Password</label>
-		                  <input type="password" id="password"/>
+                                <label>Email</label>
+                                <input type="text" id="email"/>
 
-		                  <div><button id="register" class="btn">Register</button></div>
-                    </form>
-                </div>
+                                <label>Password</label>
+                                <input type="password" id="password"/>
 
-                <div class="span5">
-                		<form class="well">
-		              		<h4>Existing account</h4>
-		                  <label>Username</label>
-		                  <input type="text" id="username-existing"/>
- 		                  <label>Password</label>
-		                  <input type="password" id="password-existing"/>
-		                  <div><button id="login" class="btn">Login</button></div>
-                    </form>
-                </div>
-                </div>
+                                <div><button id="register" class="btn">Register</button></div>
+                            </form>
+                        </div>
+
+                        <div class="span5">
+                            <form class="well">
+                                <h4>Existing account</h4>
+                                <label>Username</label>
+                                <input type="text" id="username-existing"/>
+                                <label>Password</label>
+                                <input type="password" id="password-existing"/>
+                                <div><button id="login" class="btn">Login</button></div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="dialog" id="dialog-sheet">
+            <div class="modal hide" id="dialog-sheet">
+                <div class="modal-body">
+                    <h3>Overview</h3>
 
-                <table id="list-sheets">
-                    <tr><td>Name</td></tr>
-                </table>
+                    <div class="row-fluid">
 
-                <label>Sheet</label>
-                <input type="text" id="sheet-name"/>
+                        <table id="list-sheets">
+                            <thead>
+                                <tr><td>Name</td></tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <form class="well">
+                            <label>Sheet</label>
+                            <input type="text" id="sheet-name"/>
 
-                <div><button id="create-sheet">Create sheet</button></div>
+                            <div><button id="create-sheet">Create sheet</button></div>
+                        </form>
+                    </div>
+                </div>
             </div>
 
-            <div class="dialog" id="dialog-project">
-                <table id="list-projects">
-                    <tr><td>Name</td></tr>
-                </table>
+            <div class="modal hide" id="dialog-project">
+                <div class="modal-body">
+                    <h3>Projects</h3>
+                    <div class="row-fluid">
+                        <table id="list-projects">
+                            <thead>
+                                <tr><td>Name</td></tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
 
-                <label>Project</label>
-                <input type="text" id="project-name"/>
+                        <label>Project</label>
+                        <input type="text" id="project-name"/>
 
-                <div><button id="create-project">Create project</button></div>
+                        <div><button id="create-project">Create project</button></div>
+                    </div>
+
+                </div>
             </div>
 
-            <div class="dialog" id="dialog-members">
+            <div class="dialog hide" id="dialog-members">
                 <table id="list-members">
                     <tr><td>Name</td></tr>
                 </table>
@@ -533,7 +606,7 @@
                 </div>
             </div>
         </div>
-        
-            <script src="bootstrap/js/bootstrap.js"></script>
+
+        <script src="bootstrap/js/bootstrap.js"></script>
     </body>
 </html>
