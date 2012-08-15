@@ -22,4 +22,4 @@ Currently the application is in an experimental state.
 
 Screenshot
 ==========
-![Screenshot of the wbs-creator diagram editor](/wbs-creator/wbs-creator.jpeg)
+![Screenshot of the wbs-creator diagram editor](wbs-creator/wbs-creator.jpeg)
