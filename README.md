@@ -16,7 +16,8 @@ these resources.
 
 The implementation consists of a Java server backend using JCR and Apache Jackrabbit as a 
 persistence mechanism, communication is handled by AJAX calls using the JAX-WS API. 
-The client is a single page web application written in a combination of HTML/CSS, JQuery and Bootstrap.
+The client is a single page web application written in a combination of HTML/CSS, 
+JQuery, angular.js and Bootstrap.
 
 Currently the application is in an experimental state.
 
