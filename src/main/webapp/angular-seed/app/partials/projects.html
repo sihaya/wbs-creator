@@ -1,0 +1,25 @@
+<h2>Projects of {{loggedInUser.username}}</h2>
+<div class="row-fluid">
+    <div class="span6">
+        <h3>Current projects</h3>
+        <div class="well">
+            <table>
+                <thead>Projectname</thead>
+                <tbody>
+                    <tr ng-repeat="project in projects">
+                        <td class="link"><a class="btn" href="#/project/{{project.projectId}}">{{project.name}}</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="span6">
+        <h3>New project</h3>        
+        <form class="well">
+            <label>Projectname:</label>
+            <input type="text" ng-model="projectName"/>
+
+            <div><button class="btn btn-primary" ng-click="createProject()">Create project</button></div>
+        </form>
+    </div>
+</div>

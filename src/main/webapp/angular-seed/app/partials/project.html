@@ -1,0 +1,48 @@
+<h2>Sheets of project {{project.name}}</h2>
+<div class="row-fluid">
+    <div class="span6">
+        <h3>Current sheets</h3>
+        <div class="well">
+            <table id="list-sheets">
+                <thead>
+                    <tr><td>Name</td></tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="sheet in project.sheets">
+                        <td><a class="btn" href="#/sheet/{{sheet.sheetId}}">{{sheet.name}}</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h3>New sheet</h3>
+        <form class="well">
+            <label>Sheetname:</label>
+            <input type="text" ng-model="sheetName"/>
+
+            <div><button class="btn btn-primary" ng-click="createSheet()">Create sheet</button></div>
+        </form>
+    </div>
+    <div class="span6">
+        <h3>Collaborators</h3>
+        <div class="well">
+            <table class="table table-striped">
+                <thead>
+                    <tr><td>Username</td><td>Email</td></tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="member in project.members">
+                        <td>{{member.username}}</td>                        
+                        <td>{{member.email}}</td>                        
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h3>New member</h3>
+        <form class="well">
+            <label>Username:</label>
+            <input type="text" ng-model="memberName"/>
+
+            <div><button class="btn btn-primary" ng-click="addMember()">Add member</button></div>
+        </form>
+    </div>    
+</div>

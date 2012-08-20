@@ -178,4 +178,12 @@ public class WbsService {
         
         return sheet;
     }
+
+    public Project fetchProjectDetail(String projectId) {
+        Project project = projectRepository.fetchByProjectId(projectId);
+        
+        project.setSheets(findSheetsByProjectId(projectId));
+        
+        return project;
+    }
 }

@@ -72,8 +72,8 @@ public class WbsRestService {
     @GET
     @Path("project/{projectId}")
     @Produces("application/json")
-    public List<Sheet> listSheets(@PathParam("projectId") String projectId) {
-        return wbsService.findSheetsByProjectId(projectId);
+    public Project fetchProjectDetail(@PathParam("projectId") String projectId) {
+        return wbsService.fetchProjectDetail(projectId);
     }
 
     @POST

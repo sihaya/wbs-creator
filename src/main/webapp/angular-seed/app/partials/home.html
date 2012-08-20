@@ -1,0 +1,44 @@
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="hero-unit">
+                <h1>WBS Creator</h1>
+                <p>Manage your project estimations by creating work breakdown structures 
+                    with WBS Creator. Start breaking down your project into basic steps, 
+                    estimate effort and summarize. Let others review your work by collaborating
+                    on the same project. Do it all from within your web browser.</p>
+                <p><a class="btn btn-primary btn-large">Create an account »</a>
+                    or <a class="btn  btn-large">Login with an existing account »</a>
+                </p>                
+            </div>     
+        </div>        
+    </div>
+    <div class="row-fluid">
+        <div class="span2"></div>
+        <div class="span4">
+            <h2>New account</h2>
+            <form class="well">
+                <label>Username</label>
+                <input ng-model="newUser.username" type="text"/>
+
+                <label>Email</label>
+                <input ng-model="newUser.email" type="text"/>
+
+                <label>Password</label>
+                <input ng-model="newUser.password" type="password"/>
+
+                <div><button class="btn" ng-click="createAccount()">Register</button></div>
+            </form>
+        </div>
+        <div class="span4">
+            <h2>Existing account</h2>
+            <form class="well">
+                <label>Username</label>
+                <input ng-model="loggedInUser.username" type="text" />
+                <label>Password</label>
+                <input ng-model="loggedInUser.password" type="password"/>
+                <div><button ng-click="loginAccount()" class="btn">Login</button></div>
+            </form>
+        </div>
+    </div>
+</div>
