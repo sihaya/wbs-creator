@@ -1,7 +1,7 @@
 'use strict';
 
 // Declare app level module which depends on filters, and services
-angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.directives']).
+angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.directives', 'ngCookies']).
     config(['$routeProvider', function($routeProvider) {
         $routeProvider.when('/home', {
             templateUrl: 'partials/home.html', 
@@ -16,8 +16,8 @@ angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.directives'])
             controller: ProjectController
         });
         $routeProvider.when('/sheet/:sheetId', {
-           templateUrl: 'partials/sheet.html',
-           controller: SheetController
+            templateUrl: 'partials/sheet.html',
+            controller: SheetController
         });
         $routeProvider.otherwise({
             redirectTo: '/home'

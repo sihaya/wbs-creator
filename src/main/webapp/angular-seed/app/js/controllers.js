@@ -1,16 +1,19 @@
 'use strict';
 
 /* Controllers */
-var loggedInUser = {
-    'username': 'pete', 
-    'password': 'developer'
-};
-
+var loggedInUser = {};
 var hostAuth;
 
-hostAuth = host.replace("http://", "http://" + loggedInUser.username + ":" + loggedInUser.password + "@");
+function setHeaders(user, $httpProvider) { 
+    var bytes = Crypto.charenc.Binary.stringToBytes(user.username + ':' + user.password);
+    var base64 = Crypto.util.bytesToBase64(bytes);
+   
+    var header = "Basic " + base64;
+   
+    $httpProvider.defaults.headers.common['Authentication'] = header;
+}
 
-function HomeController($scope, $http, $location) {        
+function HomeController($scope, $http, $location, $cookies) {        
     $scope.createAccount = function() {
         console.log("Creating account for " + $scope.newUser.username);        
         $http({
@@ -26,8 +29,16 @@ function HomeController($scope, $http, $location) {
     }
     
     $scope.loginAccount = function() {
-        hostAuth = host.replace("http://", "http://" + loggedInUser.username + ":" + loggedInUser.password + "@");
+        loggedInUser.username = $scope.credentials.username;
+        loggedInUser.password = $scope.credentials.password;
+        
+        hostAuth = host;//.replace("http://", "http://" + loggedInUser.username + ":" + loggedInUser.password + "@");
         $location.path('/projects');
+        
+        setHeaders(loggedInUser, $http)
+        
+        $cookies.username = $scope.credentials.username;
+        $cookies.password = $scope.credentials.password;
     }
     
     $scope.newUser = {
@@ -35,6 +46,8 @@ function HomeController($scope, $http, $location) {
         'password': '', 
         'email': ''
     };
+
+    $scope.credentials = {};
     
     $scope.loggedInUser = loggedInUser;
 }
@@ -113,6 +126,32 @@ function ProjectController($scope, $http, $routeParams) {
 
     $scope.sheets = [];
     $scope.retrieveProject();
+}
+
+function LoggedInUserController($scope, $location, $cookies) {
+    $scope.loggedInUser = loggedInUser;
+    $scope.location = $location;
+    
+    $scope.logout = function() {             
+        delete $cookies.username
+        delete $cookies.password;
+        
+        delete loggedInUser.username;
+        delete loggedInUser.password;
+        
+        $location.path('/home');        
+    }
+    
+    $scope.getClass = function(location) {        
+        return $location.path() == location ? 'active' : '';         
+    }
+    
+    if (!loggedInUser.username) {
+        loggedInUser.username = $cookies.username;
+        loggedInUser.password = $cookies.password;
+        
+        hostAuth = host.replace("http://", "http://" + loggedInUser.username + ":" + loggedInUser.password + "@");        
+    }
 }
 
 function SheetController($scope, $http, $routeParams) {
