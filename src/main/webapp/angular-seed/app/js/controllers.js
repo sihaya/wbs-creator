@@ -2,16 +2,6 @@
 
 /* Controllers */
 var loggedInUser = {};
-var hostAuth;
-
-function setHeaders(user, $httpProvider) { 
-    var bytes = Crypto.charenc.Binary.stringToBytes(user.username + ':' + user.password);
-    var base64 = Crypto.util.bytesToBase64(bytes);
-   
-    var header = "Basic " + base64;
-   
-    $httpProvider.defaults.headers.common['Authentication'] = header;
-}
 
 function HomeController($scope, $http, $location, $cookies) {        
     $scope.createAccount = function() {
@@ -24,21 +14,33 @@ function HomeController($scope, $http, $location, $cookies) {
             },
             data: $.param($scope.newUser)
         }).success(function() {
-            console.log("Account succesfully created");
+            alert("Account succesfully created, you can now login");
         });
     }
     
     $scope.loginAccount = function() {
-        loggedInUser.username = $scope.credentials.username;
-        loggedInUser.password = $scope.credentials.password;
-        
-        hostAuth = host;//.replace("http://", "http://" + loggedInUser.username + ":" + loggedInUser.password + "@");
-        $location.path('/projects');
-        
-        setHeaders(loggedInUser, $http)
-        
-        $cookies.username = $scope.credentials.username;
-        $cookies.password = $scope.credentials.password;
+        $http({
+            method: 'POST',
+            url: host + 'login', 
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: $.param({
+                'username': $scope.credentials.username, 
+                'password': $scope.credentials.password
+            })
+        }).success(function(data) {
+            $http({
+                method: 'GET',
+                url: host + 'user/profile'                
+            }).success(function(data) {
+                loggedInUser.username = data.username;
+            
+                $location.path('/projects');
+            });            
+        }).error(function() {
+            alert("Invalid credentials, please try again");
+        });        
     }
     
     $scope.newUser = {
@@ -59,7 +61,7 @@ function ProjectsController($scope, $http) {
     $scope.retrieveProjects = function() {
         $http({
             method: 'GET',
-            url: hostAuth + 'user/' + loggedInUser.username
+            url: host + 'user/' + loggedInUser.username
         }).success(function(data) {
             $scope.projects = data;
         });
@@ -68,7 +70,7 @@ function ProjectsController($scope, $http) {
     $scope.createProject = function() {
         $http({
             method: 'POST',
-            url: hostAuth + 'project', 
+            url: host + 'project', 
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
@@ -93,7 +95,7 @@ function ProjectController($scope, $http, $routeParams) {
     $scope.retrieveProject = function() {
         $http({
             method: 'GET',
-            url: hostAuth + 'project/' + $routeParams.projectId
+            url: host + 'project/' + $routeParams.projectId
         }).success(function(data) {
             $scope.project = data            
         });
@@ -102,7 +104,7 @@ function ProjectController($scope, $http, $routeParams) {
     $scope.createSheet = function() {
         $http({
             method: 'POST',
-            url: hostAuth + 'sheet',
+            url: host + 'sheet',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
@@ -118,7 +120,7 @@ function ProjectController($scope, $http, $routeParams) {
     $scope.addMember = function() {
         $http({
             method: 'POST',
-            url: hostAuth + 'project/' + $routeParams.projectId + '/members/' + $scope.memberName
+            url: host + 'project/' + $routeParams.projectId + '/members/' + $scope.memberName
         }).success(function(){ 
             $scope.retrieveProject();
         });
@@ -128,18 +130,26 @@ function ProjectController($scope, $http, $routeParams) {
     $scope.retrieveProject();
 }
 
-function LoggedInUserController($scope, $location, $cookies) {
+function LoggedInUserController($scope, $location, $cookies, $http) {
     $scope.loggedInUser = loggedInUser;
     $scope.location = $location;
     
     $scope.logout = function() {             
-        delete $cookies.username
-        delete $cookies.password;
-        
-        delete loggedInUser.username;
-        delete loggedInUser.password;
-        
-        $location.path('/home');        
+        $http({
+            method: 'POST',
+            url: host + 'logout'
+        }).success(function() {
+            loggedInUser.username = undefined;
+            
+            $http({ 
+                method: 'GET',
+                url: host + 'user/profile'
+            });
+            
+            $location.path('/home');            
+        }).error(function() {
+            alert('Error while logging out');
+        });        
     }
     
     $scope.getClass = function(location) {        
@@ -147,10 +157,14 @@ function LoggedInUserController($scope, $location, $cookies) {
     }
     
     if (!loggedInUser.username) {
-        loggedInUser.username = $cookies.username;
-        loggedInUser.password = $cookies.password;
-        
-        hostAuth = host.replace("http://", "http://" + loggedInUser.username + ":" + loggedInUser.password + "@");        
+        $http({
+            method: 'GET',
+            url: host + 'user/profile'                
+        }).success(function(data) {
+            loggedInUser.username = data.username;
+            
+            $location.path('/projects');
+        });
     }
 }
 
@@ -173,7 +187,7 @@ function SheetController($scope, $http, $routeParams) {
     var syncUpdateTaskWithServer = function(task) {
         $.ajax({
             type: 'PUT', 
-            url: hostAuth + 'task',
+            url: host + 'task',
             data: {
                 'taskId': task.taskId, 
                 effort: task.effort, 
@@ -185,7 +199,7 @@ function SheetController($scope, $http, $routeParams) {
     var syncNewTaskWithServer = function(parentTask, newTask) {
         $.ajax({
             type: 'POST', 
-            url: hostAuth + 'task',
+            url: host + 'task',
             data: {
                 'parentTaskId': parentTask.taskId
             }
@@ -200,7 +214,7 @@ function SheetController($scope, $http, $routeParams) {
     var syncDeleteTaskWithServer = function(taskId) {
         $.ajax({
             type: 'DELETE', 
-            url: hostAuth + 'task',
+            url: host + 'task',
             data: {
                 'taskId': taskId
             }

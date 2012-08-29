@@ -19,12 +19,26 @@ import javax.jcr.Session;
  */
 @Stateless
 public class UserRepository {
+
     private UserFactory userFactory;
     private Repository repository;
 
+    public User fetchByUsername(String username) {
+        Session session = null;
+        try {
+            session = SessionUtil.login(repository);
+
+            return userFactory.create(getUserNode(session, username));
+        } catch (RepositoryException ex) {
+            throw new IllegalStateException(ex);
+        } finally {
+            SessionUtil.logout(session);
+        }
+    }
+
     public void save(User user) {
         Session session = null;
-        
+
         try {
             session = SessionUtil.login(repository);
             Node wbs = getWbsNode(session);
@@ -45,40 +59,43 @@ public class UserRepository {
             session.logout();
         }
     }
-    
+
     public String getId(String username) {
         Session session = null;
-        
+
         try {
             session = SessionUtil.login(repository);
             Node wbs = getWbsNode(session);
-            
+
             return wbs.getNode(username).getIdentifier();
-        } catch(RepositoryException ex) {
+        } catch (RepositoryException ex) {
             throw new IllegalStateException(ex);
         } finally {
             session.logout();
         }
     }
-    
+
+    private Node getUserNode(Session session, String username) throws IllegalStateException, RepositoryException {
+        Node wbs = getWbsNode(session);
+        if (!wbs.hasNode(username)) {
+            throw new IllegalStateException("No user by this name");
+        }
+        Node userNode = wbs.getNode(username);
+        return userNode;
+    }
+
     private Node getWbsNode(Session session) throws RepositoryException {
         return session.getRootNode().getNode("wbs");
     }
 
     public User authenticate(String username, char[] password) {
         Session session = null;
-                
+
         try {
             session = SessionUtil.login(repository);
-            
-            Node wbs = getWbsNode(session);
 
-            if (!wbs.hasNode(username)) {
-                throw new IllegalStateException("No user by this name");
-            }
+            Node userNode = getUserNode(session, username);
 
-            Node userNode = wbs.getNode(username);
-            
             if (!Arrays.equals(userNode.getProperty("password").getString().toCharArray(), password)) {
                 throw new IllegalStateException("Incorrect password");
             }

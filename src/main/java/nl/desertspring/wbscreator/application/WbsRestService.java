@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
@@ -19,6 +20,11 @@ import javax.xml.bind.JAXBContext;
 import nl.desertspring.wbscreator.domain.Project;
 import nl.desertspring.wbscreator.domain.Sheet;
 import nl.desertspring.wbscreator.domain.Task;
+import nl.desertspring.wbscreator.domain.User;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
 
 /**
  *
@@ -31,7 +37,7 @@ public class WbsRestService {
     @Provider
     public static class JAXBContextResolver implements ContextResolver<JAXBContext> {
 
-        private JAXBContext context;        
+        private JAXBContext context;
 
         public JAXBContextResolver() throws Exception {
             JSONConfiguration config = JSONConfiguration.natural().build();
@@ -52,6 +58,12 @@ public class WbsRestService {
         wbsService.createUser(username, password.toCharArray(), email);
 
         return Response.created(context.getAbsolutePath()).build();
+    }
+
+    @GET
+    @Path("user/profile")
+    public User fetchProfile() {
+        return wbsService.fetchProfile();
     }
 
     @GET
@@ -92,19 +104,19 @@ public class WbsRestService {
 
         return sheet;
     }
-    
+
     @GET
     @Path("sheet/public/{publicSecret}")
     @Produces("application/json")
-    public Sheet fetchSheetDetailPublic(@PathParam("publicSecret")String publicSecret) {        
+    public Sheet fetchSheetDetailPublic(@PathParam("publicSecret") String publicSecret) {
         return wbsService.fetchSheetDetailByPublicKey(publicSecret);
     }
-    
+
     @POST
     @Path("sheet/public")
     public Response createSheet(@FormParam("sheetId") String sheetId) {
         wbsService.grantPublicRead(sheetId);
-        
+
         Sheet sheet = wbsService.fetchSheetDetail(sheetId);
 
         return Response.created(context.getAbsolutePathBuilder().path(sheet.getPublicSecret()).build()).build();
@@ -135,19 +147,38 @@ public class WbsRestService {
 
         return Response.created(context.getAbsolutePathBuilder().path(taskId).build()).build();
     }
-    
+
     @POST
     @Path("project/{projectId}/members/{username}")
-    public void updateTask(@PathParam("projectId")String projectId, @PathParam("username")String username) {
+    public void updateTask(@PathParam("projectId") String projectId, @PathParam("username") String username) {
         wbsService.addMemberToProject(projectId, username);
     }
-    
+
     @DELETE
     @Path("task")
-    public void deleteTask(@FormParam("taskId")String taskId) {
+    public void deleteTask(@FormParam("taskId") String taskId) {
         wbsService.deleteTask(taskId);
     }
+
+    @POST
+    @Path("login")
+    public Response login(@FormParam("username") String username, @FormParam("password") String password) {
+        Subject currentUser = SecurityUtils.getSubject();
+
+        try {
+            currentUser.login(new UsernamePasswordToken(username, password));
+            
+            return Response.created(context.getAbsolutePathBuilder().path("user/profile").build()).build();
+        } catch(AuthenticationException ex) {                        
+            return Response.status(Status.BAD_REQUEST).build();
+        }         
+    }
     
+    @POST
+    @Path("logout")
+    public void logout() {
+        SecurityUtils.getSubject().logout();        
+    }
 
     @Inject
     public void setWbsService(WbsService wbsService) {
@@ -155,7 +186,7 @@ public class WbsRestService {
     }
 
     @Context
-    public void setContext(UriInfo context) {        
+    public void setContext(UriInfo context) {
         this.context = context;
     }
 }

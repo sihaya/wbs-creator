@@ -268,4 +268,17 @@ public class WbsServiceTest {
 
         assertEquals(sheet, actual);
     }
+    
+    @Test
+    public void givenLoggedInUserFetchProfileReturnsUserInfo() {
+        User user = mock(User.class);
+        UserRepository userRepository = mock(UserRepository.class);
+        wbsService.setUserRepository(userRepository);
+        
+        when(userRepository.fetchByUsername(username)).thenReturn(user);
+        
+        User actual = wbsService.fetchProfile();
+        
+        assertEquals(user, actual);
+    }
 }

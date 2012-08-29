@@ -24,7 +24,7 @@ import org.apache.shiro.subject.Subject;
  *
  * @author sihaya
  */
-public class WbsRealm extends AuthorizingRealm implements SessionStorageEvaluator {    
+public class WbsRealm extends AuthorizingRealm {    
     private UserRepository userRepository;
     
     private static final Set<String> roles = Collections.singleton("user");
@@ -59,10 +59,5 @@ public class WbsRealm extends AuthorizingRealm implements SessionStorageEvaluato
             Logger.getLogger(WbsRealm.class.getName()).log(Level.SEVERE, null, ex);
             throw new IllegalStateException(ex);
         }
-    }
-
-    @Override
-    public boolean isSessionStorageEnabled(Subject subject) {
-        return false;
     }
 }

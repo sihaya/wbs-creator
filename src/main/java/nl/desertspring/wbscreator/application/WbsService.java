@@ -186,4 +186,8 @@ public class WbsService {
         
         return project;
     }
+
+    public User fetchProfile() {
+        return userRepository.fetchByUsername(securityUtil.getSubjectUsername());
+    }
 }

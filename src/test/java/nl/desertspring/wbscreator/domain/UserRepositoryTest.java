@@ -40,6 +40,27 @@ public class UserRepositoryTest extends WbsIntegrationTest {
     }
     
     @Test
+    public void given_an_existing_username_fetch_by_username_returns_user() throws Exception {
+        final String username = "test22222";
+        UserFactory userFactory = new UserFactory();
+        
+        UserRepository userRepository = new UserRepository();
+        userRepository.setRepository(repository);
+        userRepository.setUserFactory(userFactory);
+        
+        User user = new User();
+        user.setEmail("test123@lan.lan");
+        user.setPassword("3423".toCharArray());
+        user.setUsername(username);
+        
+        userRepository.save(user);
+        
+        User actual = userRepository.fetchByUsername(username);
+        
+        assertEquals(username, actual.getUsername());
+    }
+    
+    @Test
     public void given_an_exisiting_username_get_by_id_returns_an_id() {
         UserRepository userRepository = new UserRepository();
         userRepository.setRepository(repository);
