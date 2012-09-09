@@ -17,10 +17,7 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 import javax.xml.bind.JAXBContext;
-import nl.desertspring.wbscreator.domain.Project;
-import nl.desertspring.wbscreator.domain.Sheet;
-import nl.desertspring.wbscreator.domain.Task;
-import nl.desertspring.wbscreator.domain.User;
+import nl.desertspring.wbscreator.domain.*;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -33,6 +30,7 @@ import org.apache.shiro.subject.Subject;
 @Stateless
 @Path("wbs")
 public class WbsRestService {
+    private SecurityUtil securityUtil;
 
     @Provider
     public static class JAXBContextResolver implements ContextResolver<JAXBContext> {
@@ -162,16 +160,14 @@ public class WbsRestService {
 
     @POST
     @Path("login")
-    public Response login(@FormParam("username") String username, @FormParam("password") String password) {
-        Subject currentUser = SecurityUtils.getSubject();
-
+    public Response login(@FormParam("username") String username, @FormParam("password") String password) {        
         try {
-            currentUser.login(new UsernamePasswordToken(username, password));
+            securityUtil.login(username, password.toCharArray());
             
             return Response.created(context.getAbsolutePathBuilder().path("user/profile").build()).build();
         } catch(AuthenticationException ex) {                        
             return Response.status(Status.BAD_REQUEST).build();
-        }         
+        }
     }
     
     @POST
@@ -189,4 +185,9 @@ public class WbsRestService {
     public void setContext(UriInfo context) {
         this.context = context;
     }
+
+    @Inject
+    public void setSecurityUtil(SecurityUtil securityUtil) {
+        this.securityUtil = securityUtil;
+    }    
 }

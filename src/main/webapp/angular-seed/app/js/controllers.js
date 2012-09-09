@@ -3,7 +3,7 @@
 /* Controllers */
 var loggedInUser = {};
 
-function HomeController($scope, $http, $location, $cookies) {        
+function CreateAccountController($scope, $http, $location) {
     $scope.createAccount = function() {
         console.log("Creating account for " + $scope.newUser.username);        
         $http({
@@ -14,10 +14,20 @@ function HomeController($scope, $http, $location, $cookies) {
             },
             data: $.param($scope.newUser)
         }).success(function() {
-            alert("Account succesfully created, you can now login");
+            loggedInUser.username = $scope.newUser.username;
+            
+            $location.path('/projects');
         });
     }
     
+    $scope.newUser = {
+        'username': '', 
+        'password': '', 
+        'email': ''
+    };
+}
+
+function HomeController($scope, $http, $location) {    
     $scope.loginAccount = function() {
         $http({
             method: 'POST',
@@ -42,13 +52,7 @@ function HomeController($scope, $http, $location, $cookies) {
             alert("Invalid credentials, please try again");
         });        
     }
-    
-    $scope.newUser = {
-        'username': '', 
-        'password': '', 
-        'email': ''
-    };
-
+        
     $scope.credentials = {};
     
     $scope.loggedInUser = loggedInUser;

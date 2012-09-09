@@ -19,7 +19,12 @@ angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.directives', 
             templateUrl: 'partials/sheet.html',
             controller: SheetController
         });
+        $routeProvider.when('/create-account', {
+            templateUrl: 'partials/create-account.html',
+            controller: CreateAccountController
+        }); 
         $routeProvider.otherwise({
             redirectTo: '/home'
         });
+        
     }]);

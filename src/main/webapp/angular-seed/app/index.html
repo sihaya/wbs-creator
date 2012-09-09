@@ -8,7 +8,6 @@
         <link href="../../bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
 
         <link rel="stylesheet" type="text/css" href="../../style.css"/>
-        <script type="text/javascript" src="http://crypto-js.googlecode.com/files/2.5.3-crypto-min.js"></script>
         <script type="text/javascript" src="../../jquery.min.js"></script>
         <script type="text/javascript" src="../../host-vars.js.jsp"></script>
     </head>
@@ -39,8 +38,9 @@
                 </div>
             </div>
         </div>
-
-        <div ng-view></div>
+        
+        <div class="container-fluid" ng-view>
+        </div>
 
         <script src="lib/angular/angular.js"></script>
         <script src="lib/angular/angular-cookies.js"></script>

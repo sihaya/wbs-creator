@@ -1,0 +1,18 @@
+<div class="row-fluid" ng-hide="loggedInUser.username">
+    <div class="span4"></div>      
+    <div class="span4">
+        <h2>New account</h2>
+        <form class="well">
+            <label>Username</label>
+            <input ng-model="newUser.username" type="text"/>
+
+            <label>Email</label>
+            <input ng-model="newUser.email" type="text"/>
+
+            <label>Password</label>
+            <input ng-model="newUser.password" type="password"/>
+
+            <div><button class="btn btn-primary" ng-click="createAccount()">Sign up</button></div>
+        </form>
+    </div>
+</div>

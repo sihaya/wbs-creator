@@ -57,6 +57,19 @@ public class WbsServiceTest {
 
         assertEquals(username, user.getValue().getUsername());
     }
+    
+    @Test
+    public void givenAUsernameEmailAndPasswordCreateAccountLogsIn() {
+        final String password = "1234";
+        final String email = "username@email.com";
+        
+        UserRepository userRepository = mock(UserRepository.class);
+        
+        wbsService.setUserRepository(userRepository);
+        wbsService.createUser(username, password.toCharArray(), email);
+        
+        verify(securityUtil).login(username, password.toCharArray());
+    }
 
     @Test
     public void givenAProjectCreateSavesNewProject() {

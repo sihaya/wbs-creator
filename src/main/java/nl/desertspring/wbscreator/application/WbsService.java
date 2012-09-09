@@ -34,6 +34,8 @@ public class WbsService {
         user.setUsername(username);
 
         userRepository.save(user);
+        
+        securityUtil.login(username, password);
     }
 
     public Project createProject(String projectName) {
