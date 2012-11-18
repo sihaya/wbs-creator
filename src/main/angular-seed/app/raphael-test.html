@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="js/raphael-min.js" type="text/javascript"></script>
+        <script type="text/javascript">
+
+            window.onload = function() {
+                function Task(name) {
+                    this.name = name
+                    this.subTasks = []
+		
+                    this.x = 0
+                    this.y = 0
+                }
+	
+                Task.prototype.getName = function() {
+                    return this.name
+                }
+	
+                Task.prototype.getEffort = function() {
+                    if (this.subTasks.length > 0) {
+                        var sum = 0, i
+			
+                        for(i in this.subTasks) {
+                            sum += this.subTasks.getEffort()
+                        }
+			
+                        return sum
+                    }
+                    else {
+                        return this.effort
+                    }
+                }
+	
+                Task.prototype.setEffort = function(effort) {
+                    this.effort = effort
+                }
+	
+                Task.prototype.addTask = function(task) {
+                    this.subTasks.push(task)
+		
+                    task.x = this.x + 10
+                    task.y = this.y + 40 * this.subTasks.length
+                }
+	
+                Task.prototype.draw = function() {	
+                    var rect = paper.rect(this.x, this.y, 100, 35, 10)
+                    rect.attr("fill", "#f00")
+                    rect.drag(function(x, y) {
+                        this.attr('x', x)
+                        this.attr('y', y)
+                    });
+		
+                    var txt = paper.text(this.x + 50, this.y + 15, this.name)
+	
+                    var i		
+                    for(i in this.subTasks) {
+                        this.subTasks[i].draw();
+                    }
+                }
+	
+                var paper = Raphael(10, 50, 1000, 1000);
+
+                var root = new Task("Root task")
+                root.addTask(new Task("Sub 1"))
+                root.addTask(new Task("Sub 2"))
+	
+                root.draw()
+            }
+        </script>
+    </head>
+    <body>
+        <div></div>
+    </body>
+</html>

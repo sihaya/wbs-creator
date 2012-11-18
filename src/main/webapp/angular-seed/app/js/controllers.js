@@ -173,6 +173,42 @@ function LoggedInUserController($scope, $location, $cookies, $http) {
 }
 
 function SheetController($scope, $http, $routeParams) {
+    var model
+    var taskFactory = new TaskFactory()
+    var rootTask
+
+    var getTaskModel = function() {		            		
+        $.ajax({
+            url: host + 'sheet/' + $routeParams.sheetId
+        })
+        .done(function(data) {
+            model = data.root;
+				
+            rootTask = taskFactory.createTasksFromJson(model)
+            
+            display()
+        })
+    }
+    
+    var display = function() {
+        var paper = Raphael('svg-root', 1000, 1000)
+        
+        var createDisplay = function(task) {
+            new TaskDisplay(paper, task).draw()
+            
+            var i
+            for(i in task.getSubTasks()) {
+                createDisplay(task.getSubTasks()[i])
+            }
+        }
+        
+        createDisplay(rootTask)
+    }
+    
+    getTaskModel()
+}
+
+function SheetControllerOld($scope, $http, $routeParams) {
     var model;
     
     var getTaskModel = function() {		            		
