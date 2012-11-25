@@ -83,6 +83,19 @@ Task.prototype.getLevel = function() {
     return this.level
 }
 
+Task.prototype.getTotalSubTasks = function() {
+    if (this.isLeaf()) {
+        return 0
+    } else {
+        var sum = 0
+        for(var task in this.subTasks) {
+            sum += 1 + this.subTasks[task].getTotalSubTasks()
+        }
+    
+        return sum
+    }
+}
+
 function TaskFactory() {
     
 }

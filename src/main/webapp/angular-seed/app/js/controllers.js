@@ -194,15 +194,17 @@ function SheetController($scope, $http, $routeParams) {
         var paper = Raphael('svg-root', 1000, 1000)
         
         var createDisplay = function(task) {
-            new TaskDisplay(paper, task).draw()
+            var root = new TaskDisplay(paper, task)
             
             var i
             for(i in task.getSubTasks()) {
-                createDisplay(task.getSubTasks()[i])
+                root.addChild(createDisplay(task.getSubTasks()[i]))
             }
+            
+            return root
         }
         
-        createDisplay(rootTask)
+        createDisplay(rootTask).draw()
     }
     
     getTaskModel()
