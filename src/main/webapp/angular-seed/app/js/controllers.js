@@ -176,6 +176,27 @@ function SheetController($scope, $http, $routeParams) {
     var model
     var taskFactory = new TaskFactory()
     var rootTask
+    
+    var onAddTask = function(task) {
+        var newTask = task.addSubTask("new")
+        
+        // refactor this out and use repository        
+        $.ajax({
+            type: 'POST', 
+            url: host + 'task',
+            data: {
+                'parentTaskId': task.getTaskId(),
+                'name': newTask.getName()
+            }
+        }).complete(function(xhr, data) {
+            var response = xhr.getResponseHeader('location');
+            var last = response.split('\/');
+					
+            newTask.setTaskId(last[last.length - 1]);
+        });
+        
+        return newTask
+    }
 
     var getTaskModel = function() {		            		
         $.ajax({
@@ -194,7 +215,7 @@ function SheetController($scope, $http, $routeParams) {
         var paper = Raphael('svg-root', 1000, 1000)
         
         var createDisplay = function(task) {
-            var root = new TaskDisplay(paper, task)
+            var root = new TaskDisplay(paper, task, onAddTask, function() {})
             
             var i
             for(i in task.getSubTasks()) {

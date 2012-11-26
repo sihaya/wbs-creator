@@ -17,23 +17,23 @@
     
                 var paper = Raphael(10, 50, 1000, 1000)
                 
-                var rootDisplay = new TaskDisplay(paper, root)
-                var subTask1Display = new TaskDisplay(paper, subTask1)
-                var subTask2Display = new TaskDisplay(paper, subTask2)
+                var onAddTask = function(task) { alert("lol"); return task.addSubTask("new")}
+                
+                var rootDisplay = new TaskDisplay(paper, root, onAddTask, function() {})
+                var subTask1Display = new TaskDisplay(paper, subTask1, onAddTask, function() {})
+                var subTask2Display = new TaskDisplay(paper, subTask2, onAddTask, function() {})
                 
                 rootDisplay.addChild(subTask1Display)
                 rootDisplay.addChild(subTask2Display)
                 
-                var subSubTask1Display = new TaskDisplay(paper, subSubTask1)
-                var subSubTask2Display = new TaskDisplay(paper, subSubTask2)
+                var subSubTask1Display = new TaskDisplay(paper, subSubTask1, onAddTask, function() {})
+                var subSubTask2Display = new TaskDisplay(paper, subSubTask2, onAddTask, function() {})
                 
                 subTask2Display.addChild(subSubTask1Display)
                 subTask2Display.addChild(subSubTask2Display)
                 
-                var subSubSubTask1Display = new TaskDisplay(paper, subSubSubTask1)
+                var subSubSubTask1Display = new TaskDisplay(paper, subSubSubTask1, onAddTask, function() {})
                 subSubTask1Display.addChild(subSubSubTask1Display)
-                
-                
                 
                 rootDisplay.draw()                
             }

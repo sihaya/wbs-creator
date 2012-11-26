@@ -96,6 +96,14 @@ Task.prototype.getTotalSubTasks = function() {
     }
 }
 
+Task.prototype.getTaskId = function() {
+    return this.taskId
+}
+
+Task.prototype.setTaskId = function(taskId) {
+    this.taskId = taskId
+}
+
 function TaskFactory() {
     
 }
@@ -105,6 +113,7 @@ TaskFactory.prototype.createTasksFromJson = function(jsonData) {
         var i
         for(i in subTasksJsonData) {
             var child = parent.addSubTask(subTasksJsonData[i].name)
+            child.setTaskId(subTasksJsonData[i].taskId)
             
             if (subTasksJsonData[i].subTasks.length > 0) {
                 addSubTasks(child, subTasksJsonData[i].subTasks)
@@ -115,6 +124,7 @@ TaskFactory.prototype.createTasksFromJson = function(jsonData) {
     }
     
     var root = new Task(jsonData.name)
+    root.setTaskId(jsonData.taskId)
     
     addSubTasks(root, jsonData.subTasks)
     
