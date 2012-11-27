@@ -1,5 +1,6 @@
-function TaskDisplay(paper, task, onAddTask, onEditTask) {
+function TaskDisplay(paper, paperContext, task, onAddTask, onEditTask) {
     this.task = task
+    this.paperContext = paperContext
     this.paper = paper
     this.children = []
     this.onAddTask = onAddTask
@@ -105,16 +106,60 @@ TaskDisplay.prototype.draw = function() {
     var onEnd = function() {
         cloneRect.remove()
         
-        if (!hasMoved) {
-            that.onEditTask(that.task)
+        if (!hasMoved) {                    
+            that.beginEdit()
         } else {
             var newTask = that.onAddTask(that.task)
-            var newTaskDisplay = new TaskDisplay(that.paper, newTask, that.onAddTask, that.onEditTask)
+            var newTaskDisplay = new TaskDisplay(that.paper, that.paperContext, newTask, that.onAddTask, that.onEditTask)
             that.addChild(newTaskDisplay)
             that.draw()
         }        
     }
     rect.drag(onMove, onStart, onEnd)
+}
+
+TaskDisplay.prototype.beginEdit = function() {
+    var x, y, inputElement
+    
+    x = this.paperContext.x + this.rect.attr("x")
+    y = this.paperContext.y + this.rect.attr("y")
+    inputElement = this.paperContext.inputElement
+    
+    if ($(inputElement).is(':visible')) {
+        $(inputElement).blur()
+    }
+    
+    $(inputElement).unbind()
+    
+    var that = this;
+    $(inputElement).css("width", TaskDisplay.TASK_WIDTH).css("height", TaskDisplay.TASK_HEIGHT).css("left", x + "px").css("top", y + "px").keydown(function(event) {
+        if (event.which == 13) {
+            event.preventDefault()
+            
+            that.endEdit()            
+        }
+    }).show()
+    
+    $(inputElement).blur(function() {
+        that.endEdit()
+    })
+    
+    $(inputElement).val(this.task.getName())
+    $(inputElement).focus()
+    this.txt.hide()    
+}
+
+TaskDisplay.prototype.endEdit = function() {
+    $(this.paperContext.inputElement).unbind()
+    $(this.paperContext.inputElement).hide()
+            
+    var newText = $(this.paperContext.inputElement).val()
+    
+    if (this.onEditTask(this.task, newText)) {
+        this.txt.attr("text", newText)
+    }
+    
+    this.txt.show()
 }
 
 TaskDisplay.prototype.xCenter = function() {

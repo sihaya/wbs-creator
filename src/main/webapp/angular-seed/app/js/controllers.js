@@ -211,11 +211,31 @@ function SheetController($scope, $http, $routeParams) {
         })
     }
     
+    var onEditTask = function(task, newText) {
+        task.setName(newText)
+        
+        $.ajax({
+            type: 'PUT', 
+            url: host + 'task',
+            data: {
+                'taskId': task.getTaskId(), 
+                effort: 1, 
+                name: task.getName()
+            }
+        });
+        
+        return true
+    }
+    
     var display = function() {
         var paper = Raphael('svg-root', 1000, 1000)
         
+        var paperContext = {
+            x: 0, y: 0, inputElement: "#svg-root-text"
+        }
+        
         var createDisplay = function(task) {
-            var root = new TaskDisplay(paper, task, onAddTask, function() {})
+            var root = new TaskDisplay(paper, paperContext, task, onAddTask, onEditTask)
             
             var i
             for(i in task.getSubTasks()) {

@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Test tasks drawing</title>
+        <script src="js/jquery-1.8.3.min.js" type="text/javascript"></script>
         <script src="js/raphael-min.js" type="text/javascript"></script>
         <script src="js/tasks.js" type="text/javascript"></script>
         <script src="js/tasks-drawing.js" type="text/javascript"></script>
@@ -19,20 +20,28 @@
                 
                 var onAddTask = function(task) { alert("lol"); return task.addSubTask("new")}
                 
-                var rootDisplay = new TaskDisplay(paper, root, onAddTask, function() {})
-                var subTask1Display = new TaskDisplay(paper, subTask1, onAddTask, function() {})
-                var subTask2Display = new TaskDisplay(paper, subTask2, onAddTask, function() {})
+                var paperContext = {
+                    x: 10,
+                    y: 50,
+                    inputElement: "#graph-editor"
+                }
+                
+                var onEdit = function() { return true }
+                
+                var rootDisplay = new TaskDisplay(paper, paperContext, root, onAddTask, onEdit)
+                var subTask1Display = new TaskDisplay(paper, paperContext,subTask1, onAddTask, onEdit)
+                var subTask2Display = new TaskDisplay(paper, paperContext,subTask2, onAddTask, onEdit)
                 
                 rootDisplay.addChild(subTask1Display)
                 rootDisplay.addChild(subTask2Display)
                 
-                var subSubTask1Display = new TaskDisplay(paper, subSubTask1, onAddTask, function() {})
-                var subSubTask2Display = new TaskDisplay(paper, subSubTask2, onAddTask, function() {})
+                var subSubTask1Display = new TaskDisplay(paper, paperContext,subSubTask1, onAddTask, function() {})
+                var subSubTask2Display = new TaskDisplay(paper, paperContext,subSubTask2, onAddTask, function() {})
                 
                 subTask2Display.addChild(subSubTask1Display)
                 subTask2Display.addChild(subSubTask2Display)
                 
-                var subSubSubTask1Display = new TaskDisplay(paper, subSubSubTask1, onAddTask, function() {})
+                var subSubSubTask1Display = new TaskDisplay(paper, paperContext, subSubSubTask1, onAddTask, function() {})
                 subSubTask1Display.addChild(subSubSubTask1Display)
                 
                 rootDisplay.draw()                
@@ -40,6 +49,6 @@
         </script>
     </head>
     <body>
-        <div></div>
+        <textarea id="graph-editor" style="position: absolute; z-index: 1000; display: none; background: none; border: 0"></textarea>
     </body>
 </html>
