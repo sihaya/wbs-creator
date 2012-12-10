@@ -25,7 +25,7 @@ function TaskDisplay(taskDrawingWindow, paper, paperContext, task, onAddTask, on
 TaskDisplay.TASK_WIDTH = 100
 TaskDisplay.TASK_HEIGHT = 35
 TaskDisplay.TASK_OFFSET = 30
-TaskDisplay.PROPERTY_LINE_HEIGHT = 8
+TaskDisplay.PROPERTY_LINE_HEIGHT = 15
 
 TaskDisplay.prototype.clear = function() {
     if (this.rect) {
@@ -178,10 +178,10 @@ TaskDisplay.prototype.drawPropertiesBox = function() {
 
   var propertiesText = ""
   for(prop in properties) {
-  	propertiesText = properties[prop] + ": " + this.task.getPropertyValue(prop) + "\n"
+  	propertiesText += properties[prop] + ": " + this.task.getPropertyValue(prop) + "\n"
   }
   
-  var text = this.paper.text(x + 20, y + 8, propertiesText)  
+  var text = this.paper.text(x + 22, y + 15, propertiesText)  
   
   this.allSet.push(text, propertiesBox)
   
