@@ -1,4 +1,17 @@
-function TaskDisplay(paper, paperContext, task, onAddTask, onEditTask) {
+function TaskDrawingWindow() {
+}
+
+TaskDrawingWindow.prototype.select = function(taskDisplay) {
+	if (this.currentTask) {
+		this.currentTask.deselect()
+	}
+	
+	taskDisplay.select()
+	this.currentTask = taskDisplay
+}
+
+function TaskDisplay(taskDrawingWindow, paper, paperContext, task, onAddTask, onEditTask) {
+		this.taskDrawingWindow = taskDrawingWindow
     this.task = task
     this.paperContext = paperContext
     this.paper = paper
@@ -12,6 +25,7 @@ function TaskDisplay(paper, paperContext, task, onAddTask, onEditTask) {
 TaskDisplay.TASK_WIDTH = 100
 TaskDisplay.TASK_HEIGHT = 35
 TaskDisplay.TASK_OFFSET = 30
+TaskDisplay.PROPERTY_LINE_HEIGHT = 8
 
 TaskDisplay.prototype.clear = function() {
     if (this.rect) {
@@ -24,6 +38,15 @@ TaskDisplay.prototype.clear = function() {
     
     if (this.path) {
         this.path.remove()
+    }
+    
+    if (this.set) {
+    	this.set.remove()
+    }
+   
+    
+    if (this.allSet) {
+    	this.allSet.remove()
     }
 }
 
@@ -39,30 +62,86 @@ TaskDisplay.prototype.draw = function() {
         var widthPTask = this.paper.width / this.task.getAmountOfSibblings()
         
         this.x = widthPTask * this.task.getSibblingIndex() + widthPTask / 2
-        this.y = 2 * TaskDisplay.TASK_HEIGHT + TaskDisplay.TASK_OFFSET
+        this.y = this.parent.yBottom() + TaskDisplay.TASK_OFFSET
     } else {        
         this.x = this.parent.x + TaskDisplay.TASK_OFFSET
-        this.y = 40 * (this.getGraphSibblingIndex() + 1) + this.parent.y
+        this.y = this.parent.children.indexOf(this) != 0 ? this.getPreviousGraphSibbling().yBottom() : this.parent.yBottom()
     } 
-    
-    var child
-    for(child in this.children) {
-        this.children[child].draw()
-    }
-    
-    var rect = this.paper.rect(this.x, this.y, TaskDisplay.TASK_WIDTH, TaskDisplay.TASK_HEIGHT, 10)
-    
+        
+    var rect = this.paper.rect(this.x, this.y, TaskDisplay.TASK_WIDTH, TaskDisplay.TASK_HEIGHT, 10)    
     rect.attr("fill", "#f00")
     
     var txt = this.paper.text(this.x + 50, this.y + 15, this.task.getName())
     
     this.rect = rect
     this.txt = txt
+            
+    this.set = this.paper.set()
+    this.set.push(rect, txt)
     
+    this.allSet = this.paper.set()
+    this.allSet.push(this.set)
+    
+    this.yBoxBottomValue = TaskDisplay.TASK_HEIGHT + this.y
+    
+    this.drawPropertiesBox()
+                
+    var cloneRect
+    var hasMoved
+    var onMove = function(dx, dy) {        
+    		if (!cloneRect) {
+    			cloneRect = rect.clone()
+	        cloneRect.attr("opacity", 0.8)  
+    		}
+    
+        cloneRect.attr("x", rect.attr("x") + dx)
+        cloneRect.attr("y", rect.attr("y") + dy)
+        
+        hasMoved = true
+    }
+    
+    var onStart = function() {           
+        hasMoved = false
+    }
+    
+    var that = this
+    var onEnd = function() {
+    		if (cloneRect) {
+  	      cloneRect.remove()
+	        cloneRect = null
+        }
+        
+        if (!hasMoved) {                    
+            that.taskDrawingWindow.select(that)
+        } else {
+            var newTask = that.onAddTask(that.task)
+            var newTaskDisplay = new TaskDisplay(that.taskDrawingWindow, that.paper, that.paperContext, newTask, that.onAddTask, that.onEditTask)
+            that.addChild(newTaskDisplay)
+            
+            that.startRedraw()
+        }        
+    }
+    
+    this.set.dblclick(function() {
+    	that.beginEdit()
+    })
+    
+    this.set.drag(onMove, onStart, onEnd)
+    
+    var child
+    for(child in this.children) {
+        this.children[child].draw()
+    }
+
+    this.drawPath()
+}
+
+TaskDisplay.prototype.drawPath = function() {
+		var level = this.task.getLevel()	  
     var pathString
     // draw the level 0 lines
     if (level == 0 && this.children.length > 0) {
-        pathString = "M" + this.xCenter() + "," + this.yBottom()
+        pathString = "M" + this.xCenter() + "," + this.yBoxBottom()
         pathString += "L" + this.xCenter() + "," + (this.yBottom() + 15)
         pathString += "M" + this.children[0].xCenter() + "," + (this.yBottom() + 15)
         
@@ -75,7 +154,7 @@ TaskDisplay.prototype.draw = function() {
             pathString += "L" + this.children[child].xCenter() + "," + this.children[child].y
         }        
     } else if (this.children.length > 0) {
-        pathString = "M" + (this.x + 10) + "," + this.yBottom()
+        pathString = "M" + (this.x + 10) + "," + this.yBoxBottom()
         pathString += "L" + (this.x + 10) + "," + this.children[this.children.length - 1].yCenter()
         
         for(child in this.children) {
@@ -85,37 +164,44 @@ TaskDisplay.prototype.draw = function() {
     }
 
     this.path = this.paper.path(pathString)
-    
-    var cloneRect
-    var hasMoved
-    var onMove = function(dx, dy) {        
-        cloneRect.attr("x", rect.attr("x") + dx)
-        cloneRect.attr("y", rect.attr("y") + dy)
-        
-        hasMoved = true
-    }
-    
-    var onStart = function() {
-        cloneRect = rect.clone()
-        cloneRect.attr("opacity", 0.8)        
-        
-        hasMoved = false
-    }
-    
-    var that = this
-    var onEnd = function() {
-        cloneRect.remove()
-        
-        if (!hasMoved) {                    
-            that.beginEdit()
-        } else {
-            var newTask = that.onAddTask(that.task)
-            var newTaskDisplay = new TaskDisplay(that.paper, that.paperContext, newTask, that.onAddTask, that.onEditTask)
-            that.addChild(newTaskDisplay)
-            that.draw()
-        }        
-    }
-    rect.drag(onMove, onStart, onEnd)
+}
+
+TaskDisplay.prototype.drawPropertiesBox = function() {
+	var properties = this.task.getPropertiesDef()
+	var height = TaskDisplay.PROPERTY_LINE_HEIGHT * properties.length
+	
+	var x = this.x + TaskDisplay.TASK_WIDTH / 2 + 5
+	var y = this.y + TaskDisplay.TASK_HEIGHT + 5
+  var prop
+
+  var propertiesBox = this.paper.rect(x, y, TaskDisplay.TASK_WIDTH, height, 10)
+
+  var propertiesText = ""
+  for(prop in properties) {
+  	propertiesText = properties[prop] + ": " + this.task.getPropertyValue(prop) + "\n"
+  }
+  
+  var text = this.paper.text(x + 20, y + 8, propertiesText)  
+  
+  this.allSet.push(text, propertiesBox)
+  
+  this.yBottomValue = height + TaskDisplay.TASK_HEIGHT + this.y + 10
+}
+
+TaskDisplay.prototype.deselect = function() {
+	this.rect.attr('stroke', "#000")
+}
+
+TaskDisplay.prototype.select = function() {
+	this.rect.attr('stroke', "#ff0")
+}
+
+TaskDisplay.prototype.startRedraw = function() {
+	if (this.task.getLevel() <= 1) {
+		this.draw();	
+	} else {
+		this.parent.startRedraw();
+	}
 }
 
 TaskDisplay.prototype.beginEdit = function() {
@@ -167,7 +253,11 @@ TaskDisplay.prototype.xCenter = function() {
 }
 
 TaskDisplay.prototype.yBottom = function() {
-    return this.y + TaskDisplay.TASK_HEIGHT
+    return this.yBottomValue
+}
+
+TaskDisplay.prototype.yBoxBottom = function() {
+    return this.yBoxBottomValue
 }
 
 TaskDisplay.prototype.yCenter = function() {
@@ -182,7 +272,19 @@ TaskDisplay.prototype.addChild = function(child) {
 
 TaskDisplay.prototype.taskUpdated = function(task) {
     
-    }
+}
+
+TaskDisplay.prototype.getPreviousGraphSibbling = function() {
+	return this.parent.children[this.parent.children.indexOf(this) - 1].getDeepestChild()
+}
+
+TaskDisplay.prototype.getDeepestChild = function() {
+	if (this.children.length > 0) {
+		return this.children[this.children.length - 1].getDeepestChild()
+	} else {
+		return this
+	}
+}
 
 TaskDisplay.prototype.getGraphSibblingIndex = function() {
     var idx = 0, i

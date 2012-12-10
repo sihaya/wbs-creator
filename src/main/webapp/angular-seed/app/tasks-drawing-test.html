@@ -8,7 +8,9 @@
         <script src="js/tasks-drawing.js" type="text/javascript"></script>
         <script type="text/javascript">
             window.onload = function() {       
-                var root = new Task("Tha rootie task")
+            		var propertiesDef = ["Effort", "Cost"]
+            
+                var root = new Task("Tha rootie task", propertiesDef)
                 
                 var subTask1 = root.addSubTask("subie task 1")
                 var subTask2 = root.addSubTask("subie task 2")
@@ -28,23 +30,25 @@
                 
                 var onEdit = function() { return true }
                 
-                var rootDisplay = new TaskDisplay(paper, paperContext, root, onAddTask, onEdit)
-                var subTask1Display = new TaskDisplay(paper, paperContext,subTask1, onAddTask, onEdit)
-                var subTask2Display = new TaskDisplay(paper, paperContext,subTask2, onAddTask, onEdit)
+                var taskDrawingWindow = new TaskDrawingWindow()
+                
+                var rootDisplay = new TaskDisplay(taskDrawingWindow, paper, paperContext, root, onAddTask, onEdit)
+                var subTask1Display = new TaskDisplay(taskDrawingWindow, paper, paperContext,subTask1, onAddTask, onEdit)
+                var subTask2Display = new TaskDisplay(taskDrawingWindow, paper, paperContext,subTask2, onAddTask, onEdit)
                 
                 rootDisplay.addChild(subTask1Display)
                 rootDisplay.addChild(subTask2Display)
                 
-                var subSubTask1Display = new TaskDisplay(paper, paperContext,subSubTask1, onAddTask, function() {})
-                var subSubTask2Display = new TaskDisplay(paper, paperContext,subSubTask2, onAddTask, function() {})
+                var subSubTask1Display = new TaskDisplay(taskDrawingWindow, paper, paperContext,subSubTask1, onAddTask, function() {})
+                var subSubTask2Display = new TaskDisplay(taskDrawingWindow, paper, paperContext,subSubTask2, onAddTask, function() {})
                 
                 subTask2Display.addChild(subSubTask1Display)
                 subTask2Display.addChild(subSubTask2Display)
                 
-                var subSubSubTask1Display = new TaskDisplay(paper, paperContext, subSubSubTask1, onAddTask, function() {})
+                var subSubSubTask1Display = new TaskDisplay(taskDrawingWindow, paper, paperContext, subSubSubTask1, onAddTask, function() {})
                 subSubTask1Display.addChild(subSubSubTask1Display)
                 
-                rootDisplay.draw()                
+                rootDisplay.draw()
             }
         </script>
     </head>

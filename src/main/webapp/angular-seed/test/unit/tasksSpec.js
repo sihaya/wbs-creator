@@ -33,13 +33,13 @@ describe('task', function() {
     })
     
     it('should return sum of effort', function() {
-        var task = new Task("test")
+        var task = new Task("test", {})
         
         var subTask1 = task.addSubTask("sub task1")
-        subTask1.setEffort(222)
+        subTask1.setProperty('effort', 222)
        
         var subTask2 = task.addSubTask("sub task2")
-        subTask2.setEffort(211)
+        subTask2.setProperty('effort', 211)
         
         expect(task.getEffort()).toEqual(222 + 211)
     })
