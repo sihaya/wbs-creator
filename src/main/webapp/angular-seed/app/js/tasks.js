@@ -8,27 +8,27 @@ function Task(name, propertiesDef) {
 }
 
 Task.prototype.getPropertiesDef = function() {
-	return this.propertiesDef
+    return this.propertiesDef
 }
 
 Task.prototype.getPropertyValue = function(x) {
-	if (this.subTasks.length >= 1) {
-		var sum = 0, i
+    if (this.subTasks.length >= 1) {
+        var sum = 0, i
 			
-    for(i in this.subTasks) {
-    	sum += this.subTasks[i].getPropertyValue(x)
+        for(i in this.subTasks) {
+            sum += this.subTasks[i].getPropertyValue(x)
+        }
+			
+        return sum    
+    } else {
+        return this.properties[x] ? this.properties[x] : 0
     }
-			
-    return sum    
-	} else {
-		return this.properties[x] ? this.properties[x] : 0
-	}
 }
 
 Task.prototype.setPropertyValue = function(x, value) {
-	this.properties[x] = value
-
-	this.notify()
+    this.properties[x] = value
+    
+    this.notify()
 }
  
 	
@@ -39,7 +39,7 @@ Task.prototype.getName = function() {
 Task.prototype.setName = function(name) {
     this.name = name;
     
-    this.notify()
+    this.notify()    
 }
 	
 Task.prototype.addSubTask = function(name) {
@@ -70,6 +70,10 @@ Task.prototype.notify = function() {
     var i
     for(i in this.observers) {
         this.observers[i].taskUpdated(this)
+    }
+    
+    if (this.parent) {
+        this.parent.notify()
     }
 }
 
@@ -110,11 +114,25 @@ Task.prototype.setTaskId = function(taskId) {
     this.taskId = taskId
 }
 
+Task.prototype.getProperties = function() {    
+    var result = [], p
+    for(p in this.propertiesDef) {
+        result.push({
+            name: this.propertiesDef[p], 
+            value: this.getPropertyValue(this.propertiesDef[p])
+        })
+    }
+    
+    return result
+}
+
 function TaskFactory() {
     
 }
 
 TaskFactory.prototype.createTasksFromJson = function(jsonData) {
+    var propertiesDef = ['effort']
+    
     var addSubTasks = function(parent, subTasksJsonData) {
         var i
         for(i in subTasksJsonData) {
@@ -124,12 +142,12 @@ TaskFactory.prototype.createTasksFromJson = function(jsonData) {
             if (subTasksJsonData[i].subTasks.length > 0) {
                 addSubTasks(child, subTasksJsonData[i].subTasks)
             } else {
-                child.setEffort(subTasksJsonData[i].effort)
+                child.setPropertyValue('effort', subTasksJsonData[i].effort)
             }
         }
     }
     
-    var root = new Task(jsonData.name)
+    var root = new Task(jsonData.name, propertiesDef)
     root.setTaskId(jsonData.taskId)
     
     addSubTasks(root, jsonData.subTasks)

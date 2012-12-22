@@ -176,7 +176,7 @@ function SheetController($scope, $http, $routeParams) {
     var model
     var taskFactory = new TaskFactory()
     var rootTask
-    
+        
     var onAddTask = function(task) {
         var newTask = task.addSubTask("new")
         
@@ -219,14 +219,37 @@ function SheetController($scope, $http, $routeParams) {
             url: host + 'task',
             data: {
                 'taskId': task.getTaskId(), 
-                effort: 1, 
+                effort: task.getPropertyValue("effort"), 
                 name: task.getName()
             }
         });
         
         return true
     }
+            
+    var onSelect = function(task) {
+        $scope.selectedTask = task
+        $scope.properties = task.getProperties()
+                        
+        $scope.$digest()
+    }
     
+    $scope.editProperty = function(propertyName, propertyValue) {
+        $scope.selectedTask.setPropertyValue(propertyName, parseInt(propertyValue))
+        
+        
+        var task = $scope.selectedTask
+        $.ajax({
+            type: 'PUT', 
+            url: host + 'task',
+            data: {
+                'taskId': task.getTaskId(), 
+                effort: task.getPropertyValue("effort"), 
+                name: task.getName()
+            }
+        });
+    }
+
     var display = function() {
         var paper = Raphael('svg-root', 1000, 1000)
         
@@ -234,8 +257,12 @@ function SheetController($scope, $http, $routeParams) {
             x: 0, y: 0, inputElement: "#svg-root-text"
         }
         
+        var taskDrawingWindow = new TaskDrawingWindow(onSelect)
+        
+        
+        
         var createDisplay = function(task) {
-            var root = new TaskDisplay(paper, paperContext, task, onAddTask, onEditTask)
+            var root = new TaskDisplay(taskDrawingWindow, paper, paperContext, task, onAddTask, onEditTask)
             
             var i
             for(i in task.getSubTasks()) {

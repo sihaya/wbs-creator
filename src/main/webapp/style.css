@@ -281,3 +281,13 @@ label {
     top: 50px;
     width: 180px;
 }
+
+div.properties-box {    
+    position: fixed;
+    right: 10px;
+    top: 50px;
+}
+
+div.properties-box input[type='text'] {
+    width: 40px;
+}

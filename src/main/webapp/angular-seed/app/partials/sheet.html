@@ -2,3 +2,21 @@
 <div class="root" id="svg-root" style="position: relative">
     <textarea style="box-shadow: none; display: none; position: absolute; border: 0; background: none" id="svg-root-text"></textarea>
 </div>
+
+<div class="properties-box well">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="p in properties">
+                <td>{{p.name}}</td>            
+                <td ng-show="selectedTask.isLeaf()"><input type="text"  ng-change="editProperty(p.name, p.value)" ng-model="p.value"/></td>
+                <td ng-show="!selectedTask.isLeaf()">{{p.value}}</td>
+            </tr>
+        </tbody> 
+    </table>
+</div>

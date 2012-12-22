@@ -1,17 +1,22 @@
-function TaskDrawingWindow() {
+function TaskDrawingWindow(onSelect) {
+    this.onSelect = onSelect
 }
 
 TaskDrawingWindow.prototype.select = function(taskDisplay) {
-	if (this.currentTask) {
-		this.currentTask.deselect()
-	}
+    if (this.currentTask) {
+        this.currentTask.deselect()
+    }
 	
-	taskDisplay.select()
-	this.currentTask = taskDisplay
+    taskDisplay.select()
+    this.currentTask = taskDisplay
+    
+    if (this.onSelect) {
+        this.onSelect(this.currentTask.task)
+    }
 }
 
 function TaskDisplay(taskDrawingWindow, paper, paperContext, task, onAddTask, onEditTask) {
-		this.taskDrawingWindow = taskDrawingWindow
+    this.taskDrawingWindow = taskDrawingWindow
     this.task = task
     this.paperContext = paperContext
     this.paper = paper
@@ -41,12 +46,12 @@ TaskDisplay.prototype.clear = function() {
     }
     
     if (this.set) {
-    	this.set.remove()
+        this.set.remove()
     }
    
     
     if (this.allSet) {
-    	this.allSet.remove()
+        this.allSet.remove()
     }
 }
 
@@ -89,10 +94,10 @@ TaskDisplay.prototype.draw = function() {
     var cloneRect
     var hasMoved
     var onMove = function(dx, dy) {        
-    		if (!cloneRect) {
-    			cloneRect = rect.clone()
-	        cloneRect.attr("opacity", 0.8)  
-    		}
+        if (!cloneRect) {
+            cloneRect = rect.clone()
+            cloneRect.attr("opacity", 0.8)  
+        }
     
         cloneRect.attr("x", rect.attr("x") + dx)
         cloneRect.attr("y", rect.attr("y") + dy)
@@ -106,9 +111,9 @@ TaskDisplay.prototype.draw = function() {
     
     var that = this
     var onEnd = function() {
-    		if (cloneRect) {
-  	      cloneRect.remove()
-	        cloneRect = null
+        if (cloneRect) {
+            cloneRect.remove()
+            cloneRect = null
         }
         
         if (!hasMoved) {                    
@@ -123,7 +128,7 @@ TaskDisplay.prototype.draw = function() {
     }
     
     this.set.dblclick(function() {
-    	that.beginEdit()
+        that.beginEdit()
     })
     
     this.set.drag(onMove, onStart, onEnd)
@@ -137,7 +142,7 @@ TaskDisplay.prototype.draw = function() {
 }
 
 TaskDisplay.prototype.drawPath = function() {
-		var level = this.task.getLevel()	  
+    var level = this.task.getLevel()	  
     var pathString
     // draw the level 0 lines
     if (level == 0 && this.children.length > 0) {
@@ -167,41 +172,49 @@ TaskDisplay.prototype.drawPath = function() {
 }
 
 TaskDisplay.prototype.drawPropertiesBox = function() {
-	var properties = this.task.getPropertiesDef()
-	var height = TaskDisplay.PROPERTY_LINE_HEIGHT * properties.length
+    var properties = this.task.getPropertiesDef()
+    var height = TaskDisplay.PROPERTY_LINE_HEIGHT * properties.length
 	
-	var x = this.x + TaskDisplay.TASK_WIDTH / 2 + 5
-	var y = this.y + TaskDisplay.TASK_HEIGHT + 5
-  var prop
+    var x = this.x + TaskDisplay.TASK_WIDTH / 2 + 5
+    var y = this.y + TaskDisplay.TASK_HEIGHT + 5
+    
 
-  var propertiesBox = this.paper.rect(x, y, TaskDisplay.TASK_WIDTH, height, 10)
+    var propertiesBox = this.paper.rect(x, y, TaskDisplay.TASK_WIDTH - 5, height, 10)
+      
+    this.propertiesText = this.paper.text(x + 5, y + height / 2, "").attr("text-anchor", "start") 
+    
+    this.drawPropertiesText()
+    
+    this.allSet.push(this.propertiesText, propertiesBox)
+  
+    this.yBottomValue = height + TaskDisplay.TASK_HEIGHT + this.y + 10
+}
 
-  var propertiesText = ""
-  for(prop in properties) {
-  	propertiesText += properties[prop] + ": " + this.task.getPropertyValue(prop) + "\n"
-  }
-  
-  var text = this.paper.text(x + 22, y + 15, propertiesText)  
-  
-  this.allSet.push(text, propertiesBox)
-  
-  this.yBottomValue = height + TaskDisplay.TASK_HEIGHT + this.y + 10
+TaskDisplay.prototype.drawPropertiesText = function() {
+    var properties = this.task.getPropertiesDef()
+    var prop
+    var propertiesText = ""
+    for(prop in properties) {
+        propertiesText += properties[prop] + ": " + this.task.getPropertyValue(properties[prop]) + "\n"
+    }
+    
+    this.propertiesText.attr("text", propertiesText)
 }
 
 TaskDisplay.prototype.deselect = function() {
-	this.rect.attr('stroke', "#000")
+    this.rect.attr('stroke', "#000")
 }
 
 TaskDisplay.prototype.select = function() {
-	this.rect.attr('stroke', "#ff0")
+    this.rect.attr('stroke', "#ff0")
 }
 
 TaskDisplay.prototype.startRedraw = function() {
-	if (this.task.getLevel() <= 1) {
-		this.draw();	
-	} else {
-		this.parent.startRedraw();
-	}
+    if (this.task.getLevel() <= 1) {
+        this.draw();	
+    } else {
+        this.parent.startRedraw();
+    }
 }
 
 TaskDisplay.prototype.beginEdit = function() {
@@ -271,19 +284,19 @@ TaskDisplay.prototype.addChild = function(child) {
 }
 
 TaskDisplay.prototype.taskUpdated = function(task) {
-    
+    this.drawPropertiesText()
 }
 
 TaskDisplay.prototype.getPreviousGraphSibbling = function() {
-	return this.parent.children[this.parent.children.indexOf(this) - 1].getDeepestChild()
+    return this.parent.children[this.parent.children.indexOf(this) - 1].getDeepestChild()
 }
 
 TaskDisplay.prototype.getDeepestChild = function() {
-	if (this.children.length > 0) {
-		return this.children[this.children.length - 1].getDeepestChild()
-	} else {
-		return this
-	}
+    if (this.children.length > 0) {
+        return this.children[this.children.length - 1].getDeepestChild()
+    } else {
+        return this
+    }
 }
 
 TaskDisplay.prototype.getGraphSibblingIndex = function() {

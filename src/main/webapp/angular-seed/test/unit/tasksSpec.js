@@ -7,9 +7,9 @@ describe('task', function() {
         var taskName = "my task name"
         var effort = 443;
         var task = new Task(taskName)
-        task.setEffort(effort)
+        task.setPropertyValue('effort', effort)
         
-        expect(task.getEffort()).toEqual(effort)
+        expect(task.getPropertyValue('effort')).toEqual(effort)
         expect(task.getName()).toEqual(taskName)
         expect(task.isLeaf()).toEqual(true)
     })
@@ -36,12 +36,12 @@ describe('task', function() {
         var task = new Task("test", {})
         
         var subTask1 = task.addSubTask("sub task1")
-        subTask1.setProperty('effort', 222)
+        subTask1.setPropertyValue('effort', 222)
        
         var subTask2 = task.addSubTask("sub task2")
-        subTask2.setProperty('effort', 211)
+        subTask2.setPropertyValue('effort', 211)
         
-        expect(task.getEffort()).toEqual(222 + 211)
+        expect(task.getPropertyValue('effort')).toEqual(222 + 211)
     })
     
     it('should call update of observer', function() {
@@ -53,7 +53,7 @@ describe('task', function() {
         
         var task = new Task("test")
         task.addObserver(observer)
-        task.setEffort(22)
+        task.setPropertyValue('effort', 22)
         
         expect(calledTask).toEqual(task)
     })
@@ -80,6 +80,15 @@ describe('task', function() {
         var sub = root.addSubTask("subTask")
         expect(sub.getParent()).toEqual(root)
     })
+    
+    it('should return a list of all properties', function() {
+        var task = new Task("root task", ["Effort", "Cost"])
+        
+        task.setPropertyValue("Effort", 2)
+        
+        expect(task.getProperties()).toEqual([{name: "Effort", value: 2}, {name: "Cost", value: 0}])
+    })
+    
 })
 
 describe('factory', function() {
@@ -100,6 +109,7 @@ describe('factory', function() {
         
         expect(root.getName()).toEqual("root task")
         expect(root.getSubTasks().length).toEqual(1)
+        expect(root.getPropertiesDef().length).toEqual(1)
         
         var subtask1 = root.getSubTasks()[0]
         expect(subtask1.getName()).toEqual("subtask1")
