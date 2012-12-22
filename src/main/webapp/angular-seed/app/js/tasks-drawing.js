@@ -284,7 +284,21 @@ TaskDisplay.prototype.addChild = function(child) {
 }
 
 TaskDisplay.prototype.taskUpdated = function(task) {
-    this.drawPropertiesText()
+    if (this.task.isRemoved()) {
+        if (!this.parent.task.isRemoved()) {
+            this.parent.removeChild(this)
+        }
+        
+        this.clear()
+    } else {
+        this.drawPropertiesText()
+    }
+}
+
+TaskDisplay.prototype.removeChild = function(child) {
+    this.children.splice(this.children.indexOf(child), 1)
+    
+    this.draw()
 }
 
 TaskDisplay.prototype.getPreviousGraphSibbling = function() {

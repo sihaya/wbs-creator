@@ -234,6 +234,18 @@ function SheetController($scope, $http, $routeParams) {
         $scope.$digest()
     }
     
+    $scope.deleteTask = function() {
+        $scope.selectedTask.remove()
+        
+        $.ajax({
+            type: 'DELETE', 
+            url: host + 'task',
+            data: {
+                'taskId': $scope.selectedTask.taskId
+            }
+        });
+    }
+    
     $scope.editProperty = function(propertyName, propertyValue) {
         $scope.selectedTask.setPropertyValue(propertyName, parseInt(propertyValue))
         

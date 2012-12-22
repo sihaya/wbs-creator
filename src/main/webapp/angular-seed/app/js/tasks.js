@@ -30,6 +30,23 @@ Task.prototype.setPropertyValue = function(x, value) {
     
     this.notify()
 }
+
+Task.prototype.remove = function() {
+    this.removed = true
+    
+    var subTask
+    for(subTask in this.subTasks) {
+         this.subTasks[subTask].remove()
+    }
+    
+    this.parent.subTasks.splice(this.parent.subTasks.indexOf(this), 1)
+            
+    this.notify()
+}
+
+Task.prototype.isRemoved = function() {
+    return this.removed
+}
  
 	
 Task.prototype.getName = function() {
