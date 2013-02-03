@@ -1,0 +1,23 @@
+User stories for wbs creator
+
+A user can invite new members by email to join a project
+
+A user can create big charts that causes the browser to scroll
+
+A project manager can invite members to participate in a wide band delphi analysis session
+
+A user gets an overview of the wideband delphi analysis sessions he is currently participating
+
+A user can enter his estimates for leaf tasks in a wide delphi analysis
+
+A user gets results from the wide band delphi analysis when it is complete
+
+A project manager can select tasks that need to be reestimated by all members in a new iteration
+
+A user can fill in reestimations of certain tasks in an iteration of a wideband delphi session
+
+A user can get a table view of a workbreakdown structure and edit the information
+
+A user gets an email confirmation after signing up for a WBS-creator account
+
+A user can request a password reset by email
